@@ -1,3 +1,6 @@
+import csv from 'csv-parser';
+import xlsx from 'xlsx';
+
 import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
@@ -51,6 +54,24 @@ export default async function handler(
         );
         fs.renameSync(uploadedFile.path, newFilePath);
 
+        //CSV or XLSX convertion txt
+        const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
+
+        if (ext ==='csv') {
+          const csvData: any[] = [];
+          fs.createReadStream(newFilePath)
+          .pipe(csv())
+          .on('data', (data) => csvData.push(data))
+          .on('end', () => {
+            fs.writeFileSync(newFilePath.replace('.csv', '.txt'), JSON.stringify(csvData));
+          });
+        } else if (ext === '.xlsx') {
+          const workbook = xlsx.readFile(newFilePath);
+          const sheetNameList = workbook.SheetNames;
+          const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]]);
+          fs.writeFileSync(newFilePath.replace('.xlsx', '.txt'), JSON.stringify(jsonData));
+        }
+        
         uploadedFiles.push(newFilePath);
       } else {
         // In production, just use the file as is
