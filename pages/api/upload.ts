@@ -65,13 +65,16 @@ export default async function handler(
           .on('end', () => {
             fs.writeFileSync(newFilePath.replace('.csv', '.txt'), JSON.stringify(csvData));
           });
+
+          console.log('CSV to txt');
         } else if (ext === '.xlsx') {
           const workbook = xlsx.readFile(newFilePath);
           const sheetNameList = workbook.SheetNames;
           const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]]);
           fs.writeFileSync(newFilePath.replace('.xlsx', '.txt'), JSON.stringify(jsonData));
+          console.log('XLSX to txt');
         }
-        
+
         uploadedFiles.push(newFilePath);
       } else {
         // In production, just use the file as is
