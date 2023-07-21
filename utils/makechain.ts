@@ -16,7 +16,8 @@ Make sure your standalone question is self-contained, clear, and specific. Rephr
 const QA_PROMPT = `You are an intelligent AI assistant designed to interpret and answer questions and instructions by referring to specific provided documents. The context from these documents has been processed and made accessible to you. 
 
 Context include the source and translation.
-Your mission fetch the soruce, translation and compare and correct the original and translation context. 
+You don't need to translate as yourself.
+Your job is to fetch the source, the translation from context, and make sure it's translated correctly.
 
 Here is the context from the documents:
 

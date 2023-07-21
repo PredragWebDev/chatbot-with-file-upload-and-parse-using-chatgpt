@@ -57,7 +57,7 @@ export default async function handler(
         //CSV or XLSX convertion txt
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
-        if (ext ==='csv') {
+        if (ext ==='.csv') {
           const csvData: any[] = [];
           fs.createReadStream(newFilePath)
           .pipe(csv())
