@@ -58,24 +58,39 @@ export default async function handler(
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
         if (ext ==='.csv') {
-          const csvData: any[] = [];
+          // fs.createReadStream(newFilePath)
+          // .pipe(csv())
+          // .on('data', (data) => csvData.push(data))
+          // .on('end', () => {
+          //   // fs.writeFileSync(newFilePath.replace('.csv', '.txt'), JSON.stringify(csvData));
+          //   fs.writeFileSync("test.txt", JSON.stringify(csvData));
+          // });
+
           fs.createReadStream(newFilePath)
           .pipe(csv())
-          .on('data', (data) => csvData.push(data))
+          .on('data', (data) => {
+            fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.values(data).join(', ') + '\n');
+            fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+          })
           .on('end', () => {
-            fs.writeFileSync(newFilePath.replace('.csv', '.txt'), JSON.stringify(csvData));
+            console.log('CSV to txt');
           });
 
-          console.log('CSV to txt');
         } else if (ext === '.xlsx') {
           const workbook = xlsx.readFile(newFilePath);
           const sheetNameList = workbook.SheetNames;
-          const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]]);
-          fs.writeFileSync(newFilePath.replace('.xlsx', '.txt'), JSON.stringify(jsonData));
+          const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]], {header:1});
+
+          console.log('test>>>', jsonData);
+          jsonData.map((row: any) => {
+            fs.appendFileSync(newFilePath.replace('.xlsx', '.txt'), Object.values(row).join(', ') + '\r\n');
+          });
+    
           console.log('XLSX to txt');
         }
 
-        uploadedFiles.push(newFilePath);
+        console.log('new file path>>>', newFilePath);
+        uploadedFiles.push(newFilePath.replace(ext, '.txt'));
       } else {
         // In production, just use the file as is
         uploadedFiles.push(uploadedFile.path);
