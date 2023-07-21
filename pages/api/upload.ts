@@ -52,7 +52,7 @@ export default async function handler(
           projectTmpDir,
           uploadedFile.originalFilename,
         );
-        fs.renameSync(uploadedFile.path, newFilePath);
+        // fs.renameSync(uploadedFile.path, newFilePath);
 
         //CSV or XLSX convertion txt
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
@@ -66,9 +66,16 @@ export default async function handler(
           //   fs.writeFileSync("test.txt", JSON.stringify(csvData));
           // });
 
-          fs.createReadStream(newFilePath)
+          // fs.createReadStream(newFilePath)
+          let isHeader = true;
+          fs.createReadStream(uploadedFile.path)
           .pipe(csv())
           .on('data', (data) => {
+            if (isHeader) {
+
+              fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
+              isHeader = false;
+            }
             fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.values(data).join(', ') + '\n');
             fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
@@ -77,17 +84,28 @@ export default async function handler(
           });
 
         } else if (ext === '.xlsx') {
-          const workbook = xlsx.readFile(newFilePath);
+          const workbook = xlsx.readFile(uploadedFile.path);
           const sheetNameList = workbook.SheetNames;
           const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]], {header:1});
 
-          console.log('test>>>', jsonData);
+          console.log('test');
+
+          let isHeader = true;
           jsonData.map((row: any) => {
-            fs.appendFileSync(newFilePath.replace('.xlsx', '.txt'), Object.values(row).join(', ') + '\r\n');
+            if (isHeader) {
+
+              fs.appendFileSync(newFilePath.replace('.xlsx', '.txt'), Object.keys(row).join(', ') + '\n');
+              isHeader = false;
+            }
+
+            fs.appendFileSync(newFilePath.replace('.xlsx', '.txt'), Object.values(row).join(', ') + '\n');
           });
     
           console.log('XLSX to txt');
+        } else {
+          fs.renameSync(uploadedFile.path, newFilePath);
         }
+
 
         console.log('new file path>>>', newFilePath);
         uploadedFiles.push(newFilePath.replace(ext, '.txt'));
