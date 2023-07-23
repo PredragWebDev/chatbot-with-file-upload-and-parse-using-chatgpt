@@ -4,6 +4,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { makeChain } from '@/utils/makechain';
 import { initPinecone } from '@/utils/pinecone-client';
+import fs from 'fs';
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -84,6 +85,7 @@ export default async function handler(
       },
     );
 
+    console.log('test>>>', vectorStore);
     const chain = makeChain(
       vectorStore,
       returnSourceDocuments,
@@ -94,6 +96,8 @@ export default async function handler(
       question: sanitizedQuestion,
       chat_history: history || [],
     });
+
+    fs.writeFileSync('result.txt', response.text);
 
     res
       .status(200)

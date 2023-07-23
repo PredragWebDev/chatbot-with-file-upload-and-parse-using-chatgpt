@@ -52,6 +52,8 @@ export default async function handler(
 
     const docs = await textSplitter.splitDocuments(rawDocs);
 
+    console.log('docs>>>', docs);
+
     // OpenAI embeddings for the document chunks
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: openAIapiKey as string,
