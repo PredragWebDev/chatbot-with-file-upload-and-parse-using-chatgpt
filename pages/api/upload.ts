@@ -66,15 +66,9 @@ export default async function handler(
   
         })
   
-        console.log("file data>>>>",fileData);
-        
         const columnName = Object.keys(results.data[0][0])[0];
   
-        console.log('column name>>>>', columnName);
-  
         const columnData = results.data.map((row: { [x: string]: any; }) => row[columnName])
-  
-        console.log('column data', columnData);
   
         data[`${index_of_file+1} file`] = columnData;
         
@@ -88,15 +82,9 @@ export default async function handler(
       
         const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, blankrows: true });
       
-        console.log("file data>>>>", jsonData);
-      
         const columnName = Object.keys(jsonData[0])[0];
       
-        console.log('column name>>>>', columnName);
-      
         const columnData = jsonData.map((row) => row[columnName]);
-      
-        console.log('column data', columnData);
       
         data[`${index_of_file + 1} file`] = columnData;
       
@@ -138,7 +126,6 @@ export default async function handler(
           projectTmpDir,
           uploadedFile.originalFilename,
         );
-        // fs.renameSync(uploadedFile.path, newFilePath);
 
         //CSV or XLSX convertion txt
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
@@ -149,14 +136,7 @@ export default async function handler(
           fs.createReadStream('combined.csv')
           .pipe(csv())
           .on('data', (data) => {
-            // if (isHeader) {
-
-            //   fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
-            //   isHeader = false;
-            // }
-
-            
-            
+  
             if (data["1 file"] !== "") {
 
               fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data) + '\n');

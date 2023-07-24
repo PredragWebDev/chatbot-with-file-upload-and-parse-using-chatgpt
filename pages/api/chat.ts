@@ -5,6 +5,15 @@ import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { makeChain } from '@/utils/makechain';
 import { initPinecone } from '@/utils/pinecone-client';
 import fs from 'fs';
+import { PromptTemplate } from 'langchain/prompts';
+import { OpenAI } from 'langchain/llms/openai';
+import { LLMChain } from "langchain/chains";
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  SystemMessagePromptTemplate,
+} from "langchain/prompts";
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -72,14 +81,43 @@ export default async function handler(
 
   const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
   try {
-    const index = pinecone.Index(targetIndex as string);
+
+    const model = new OpenAI({
+      temperature: 0, // increase temepreature to get more creative answers
+      modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
+      // modelName: "text-davinci-003",
+      openAIApiKey: openAIapiKey as string,
+    });
+    const prompt = PromptTemplate.fromTemplate(
+      `{context}
+      These are sentences with the same content in two languages.
+      The original text is English and other language is translation.
+      {question}`
+    );
+
+    const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+      SystemMessagePromptTemplate.fromTemplate(
+        `You are an intelligent AI assistant designed to interpret and answer questions and instructions by referring to specific provided documents. The context from these documents has been processed and made accessible to you. 
+
+        Context include the source and translation.
+        You don't need to translate as yourself.
+        Your job is to fetch the source, the translation from context, and make sure it's translated correctly.
+        And provide the only answer. 
+
+        Here is the context from the documents:
+
+        Context: {context}`
+      ),
+      HumanMessagePromptTemplate.fromTemplate("{question}"),
+    ]);
+    // const index = pinecone.Index(targetIndex as string);
 
     let result ="";
     let response_Source_doc = "";
     // OpenAI embeddings for the document chunks
-    const embeddings = new OpenAIEmbeddings({
-      openAIApiKey: openAIapiKey as string,
-    });
+    // const embeddings = new OpenAIEmbeddings({
+    //   openAIApiKey: openAIapiKey as string,
+    // });
 
     const docs = fs.readFileSync('my docs.txt').toString();
 
@@ -92,46 +130,54 @@ export default async function handler(
 
       const doc = [myDocs[i]];
 
-      console.log('doc>>>>>>>', doc);
-      // Store the document chunks in Pinecone with their embeddings
-      await PineconeStore.fromDocuments(doc, embeddings, {
-        pineconeIndex: index,
-        // namespace: namespaceName as string,
-        namespace: selectedNamespace as string,
-        textKey: 'text',
-      });
-      
-      const vectorStore = await PineconeStore.fromExistingIndex(
-        new OpenAIEmbeddings({
-          openAIApiKey: openAIapiKey as string,
-        }),
-        {
-          pineconeIndex: index,
-          textKey: 'text',
-          namespace: selectedNamespace,
-        },
-      );
-      
-      const chain = makeChain(
-      vectorStore,
-      returnSourceDocuments,
-      modelTemperature,
-      openAIapiKey as string,
-      );
+      const chain = new LLMChain({llm:model, prompt:prompt});
 
-      console.log('test okay?');
-      
       const response = await chain.call({
-      question: sanitizedQuestion,
-      chat_history: history || [],
-      });
+        context:doc[0]['pageContent'],
+        question:question
+      })
+      // Store the document chunks in Pinecone with their embeddings
+      // await PineconeStore.fromDocuments(doc, embeddings, {
+      //   pineconeIndex: index,
+      //   // namespace: namespaceName as string,
+      //   namespace: selectedNamespace as string,
+      //   textKey: 'text',
+      // });
+      
+      // const vectorStore = await PineconeStore.fromExistingIndex(
+      //   new OpenAIEmbeddings({
+      //     openAIApiKey: openAIapiKey as string,
+      //   }),
+      //   {
+      //     pineconeIndex: index,
+      //     textKey: 'text',
+      //     namespace: selectedNamespace,
+      //   },
+      // );
+
+      // console.log('vectorstore>>>', vectorStore);
+      
+      // const chain = makeChain(
+      // vectorStore,
+      // returnSourceDocuments,
+      // modelTemperature,
+      // openAIapiKey as string,
+      // );
+
+      // console.log('test okay?');
+
+      // const response = await chain.call({
+      // question: sanitizedQuestion,
+      // chat_history: history || [],
+      // });
 
       result += response.text + '\n';
 
+      console.log('response>>>>', response.text);
       response_Source_doc = response.sourceDocuments;
   
       // fs.writeFileSync('result.txt', response.text);
-      fs.appendFileSync('result.txt', response.text);
+      fs.appendFileSync('result.txt', response.text + '\n');
     }
 
     // const vectorStore = await PineconeStore.fromExistingIndex(
