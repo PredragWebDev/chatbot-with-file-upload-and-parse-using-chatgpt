@@ -139,7 +139,15 @@ export default async function handler(
   
             if (data["1 file"] !== "") {
 
-              fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data) + '\n');
+              for (let i = 0; i < data.length; i ++) {
+                if (i === data.length -1) {
+                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data[`${i} file`]) + '\n\n');
+                } else {
+                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data[`${i} file`]) + ', ');
+                }
+
+
+              }
             }
             // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
