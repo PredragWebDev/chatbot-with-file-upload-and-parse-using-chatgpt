@@ -85,6 +85,9 @@ export default async function handler(
 
     const myDocs = JSON.parse(docs);
 
+    // create new file for the result.
+    fs.writeFileSync('result.txt', "the result \n\n");
+
     for (let i = 0; i < myDocs.length; i++) {
 
       const doc = [myDocs[i]];
@@ -110,22 +113,23 @@ export default async function handler(
       );
       
       const chain = makeChain(
-        vectorStore,
-        returnSourceDocuments,
-        modelTemperature,
-        openAIapiKey as string,
-        );
-        console.log('test okay?');
-        const response = await chain.call({
-        question: sanitizedQuestion,
-        chat_history: history || [],
+      vectorStore,
+      returnSourceDocuments,
+      modelTemperature,
+      openAIapiKey as string,
+      );
+
+      console.log('test okay?');
+      
+      const response = await chain.call({
+      question: sanitizedQuestion,
+      chat_history: history || [],
       });
 
       result += response.text + '\n';
 
       response_Source_doc = response.sourceDocuments;
   
-      fs.writeFileSync('result.txt', "the result \n\n");
       // fs.writeFileSync('result.txt', response.text);
       fs.appendFileSync('result.txt', response.text);
     }

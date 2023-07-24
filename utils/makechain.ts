@@ -42,6 +42,8 @@ export const makeChain = (
     openAIApiKey: openAIapiKey,
   });
 
+  console.log('openai api key error?');
+
   // Configures the chain to use the QA_PROMPT and CONDENSE_PROMPT prompts and to not return the source documents
   const chain = ConversationalRetrievalQAChain.fromLLM(
     model,
