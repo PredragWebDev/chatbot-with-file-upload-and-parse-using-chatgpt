@@ -125,6 +125,7 @@ export default async function handler(
 
       response_Source_doc = response.sourceDocuments;
   
+      fs.writeFileSync('result.txt', "the result \n\n");
       // fs.writeFileSync('result.txt', response.text);
       fs.appendFileSync('result.txt', response.text);
     }
