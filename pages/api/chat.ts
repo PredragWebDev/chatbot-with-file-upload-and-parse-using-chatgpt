@@ -74,34 +74,62 @@ export default async function handler(
   try {
     const index = pinecone.Index(targetIndex as string);
 
-    const vectorStore = await PineconeStore.fromExistingIndex(
-      new OpenAIEmbeddings({
-        openAIApiKey: openAIapiKey as string,
-      }),
-      {
-        pineconeIndex: index,
-        textKey: 'text',
-        namespace: selectedNamespace,
-      },
-    );
-
-    console.log('test>>>', vectorStore);
-    const chain = makeChain(
-      vectorStore,
-      returnSourceDocuments,
-      modelTemperature,
-      openAIapiKey as string,
-    );
-    const response = await chain.call({
-      question: sanitizedQuestion,
-      chat_history: history || [],
+    let result ="";
+    let response_Source_doc = "";
+    // OpenAI embeddings for the document chunks
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: openAIapiKey as string,
     });
 
-    fs.writeFileSync('result.txt', response.text);
+    const docs = fs.readFileSync('my docs.txt').toString();
+
+    const myDocs = JSON.parse(docs);
+
+    for (let i = 0; i < myDocs.length; i++) {
+
+      const doc = [myDocs[i]];
+      // Store the document chunks in Pinecone with their embeddings
+      await PineconeStore.fromDocuments(doc, embeddings, {
+        pineconeIndex: index,
+        // namespace: namespaceName as string,
+        namespace:selectedNamespace,
+        textKey: 'text',
+      });
+
+      const vectorStore = await PineconeStore.fromExistingIndex(
+        new OpenAIEmbeddings({
+          openAIApiKey: openAIapiKey as string,
+        }),
+        {
+          pineconeIndex: index,
+          textKey: 'text',
+          namespace: selectedNamespace,
+        },
+      );
+
+      const chain = makeChain(
+        vectorStore,
+        returnSourceDocuments,
+        modelTemperature,
+        openAIapiKey as string,
+      );
+      const response = await chain.call({
+        question: sanitizedQuestion,
+        chat_history: history || [],
+      });
+
+      result += response.text + '\n';
+
+      response_Source_doc = response.sourceDocuments;
+  
+      // fs.writeFileSync('result.txt', response.text);
+      fs.appendFileSync('result.txt', response.text);
+    }
 
     res
       .status(200)
-      .json({ text: response.text, sourceDocuments: response.sourceDocuments });
+      // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
+      .json({ text: result, sourceDocuments: response_Source_doc });
   } catch (error: any) {
     console.log('error', error);
     res.status(500).json({ error: error.message || 'Something went wrong' });

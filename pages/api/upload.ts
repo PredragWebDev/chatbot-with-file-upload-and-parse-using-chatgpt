@@ -1,5 +1,6 @@
 import csv from 'csv-parser';
 import xlsx from 'xlsx';
+const createCsvWriter  = require('csv-writer').createArrayCsvWriter;
 
 import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -35,7 +36,9 @@ export default async function handler(
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    let indext_of_file = 0;
     const uploadedFiles: string[] = [];
+    let file_data: string[] = [];
     for (const file of Object.values(files) as UploadedFile[][]) {
       if (!file || file.length === 0) {
         continue;
@@ -76,6 +79,9 @@ export default async function handler(
               fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
               isHeader = false;
             }
+            file_data.push(Object.values(data).join(', '));
+
+            
             fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.values(data).join(', ') + '\n');
             fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
@@ -106,8 +112,18 @@ export default async function handler(
           fs.renameSync(uploadedFile.path, newFilePath);
         }
 
+        const csvWriter = createCsvWriter({
+          path:newFilePath.replace(uploadedFile.originalFilename, 'out'),
+          Headers: [`${indext_of_file + 1}file`],
+          append:true
+        })
 
-        console.log('new file path>>>', newFilePath);
+        console.log('file data>>>>', file_data);
+        csvWriter.writeRecords(file_data)
+        .then(() => {
+          console.log('done');
+        });
+
         uploadedFiles.push(newFilePath.replace(ext, '.txt'));
       } else {
         // In production, just use the file as is

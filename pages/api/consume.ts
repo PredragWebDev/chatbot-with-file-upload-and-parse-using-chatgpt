@@ -10,6 +10,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import { initPinecone } from '@/utils/pinecone-client';
 
+import { LocalStorage } from "node-localstorage";
+global.localStorage = new LocalStorage('./docs');
+
 const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
 
 export default async function handler(
@@ -53,6 +56,11 @@ export default async function handler(
     const docs = await textSplitter.splitDocuments(rawDocs);
 
     console.log('docs>>>', docs);
+    console.log('docs length>>', docs.length);
+
+    // save docs to local storage.
+
+    fs.writeFileSync('my docs.txt', JSON.stringify(docs));
 
     // OpenAI embeddings for the document chunks
     const embeddings = new OpenAIEmbeddings({

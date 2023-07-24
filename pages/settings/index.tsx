@@ -251,6 +251,8 @@ export default function Settings() {
         },
       );
 
+      console.log('consume response>>>', response);
+      
       if (response.ok) {
         const data = await response.json();
         setMessage(data.message);
