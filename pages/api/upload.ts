@@ -32,6 +32,7 @@ export default async function handler(
 ) {
   const form = new multiparty.Form();
 
+  let ext = "";
   form.parse(req, async (err, fields, files) => {
     if (err) {
       return res.status(400).json({ error: 'Error parsing form data' });
@@ -41,7 +42,7 @@ export default async function handler(
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    let indext_of_file = 0;
+    let index_of_file = 0;
     const uploadedFiles: string[] = [];
 
     /// combine uploaded files to one csv
@@ -53,7 +54,7 @@ export default async function handler(
 
       const uploadedFile = file[0] as UploadedFile;
 
-      const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
+      ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
       if (ext === '.csv') {
 
@@ -75,28 +76,53 @@ export default async function handler(
   
         console.log('column data', columnData);
   
-        data[`${indext_of_file+1} file`] = columnData;
+        data[`${index_of_file+1} file`] = columnData;
         
-        indext_of_file ++;
+        index_of_file ++;
+      }
+
+      if (ext === '.xlsx') {
+        const workbook = xlsx.readFile(uploadedFile.path);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+      
+        const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, blankrows: true });
+      
+        console.log("file data>>>>", jsonData);
+      
+        const columnName = Object.keys(jsonData[0])[0];
+      
+        console.log('column name>>>>', columnName);
+      
+        const columnData = jsonData.map((row) => row[columnName]);
+      
+        console.log('column data', columnData);
+      
+        data[`${index_of_file + 1} file`] = columnData;
+      
+        index_of_file++;
       }
     }
 
-    const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
-    let rows = Array(maxLen).fill().map(() => ({}));
+    if (ext === '.csv' || ext === '.xlsx') {
 
-    for (let key in data) {
-      data[key].forEach((value, i) => {
-        rows[i][key] = value;
-      });
+      const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
+      let rows = Array(maxLen).fill().map(() => ({}));
+  
+      for (let key in data) {
+        data[key].forEach((value, i) => {
+          rows[i][key] = value;
+        });
+      }
+  
+      const json2csvParser = new Parser({ fields: Object.keys(data) });
+      const csvfile = json2csvParser.parse(rows);
+  
+      fs.writeFileSync('combined.csv', csvfile, 'utf8');
     }
 
-    const json2csvParser = new Parser({ fields: Object.keys(data) });
-    const csv = json2csvParser.parse(rows);
-
-    fs.writeFileSync('combined.csv', csv, 'utf8');
-
     //______________combine end__________________////
-    
+
     for (const file of Object.values(files) as UploadedFile[][]) {
       if (!file || file.length === 0) {
         continue;
@@ -119,31 +145,33 @@ export default async function handler(
 
         if (ext ==='.csv' || ext === '.xlsx') {
           
-          let isHeader = true;
-          fs.createReadStream('combine.csv')
+          // let isHeader = true;
+          fs.createReadStream('combined.csv')
           .pipe(csv())
           .on('data', (data) => {
-            if (isHeader) {
+            // if (isHeader) {
 
-              fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
-              isHeader = false;
-            }
-            file_data.push(Object.values(data).join(', '));
+            //   fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
+            //   isHeader = false;
+            // }
             
-            fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.values(data).join(', ') + '\n');
+            fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data).join(', ') + '\n');
             fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
           .on('end', () => {
             console.log('CSV to txt');
           });
 
+          uploadedFiles.push(newFilePath.replace(ext, '.txt'));
           break;
 
         } else {
+          console.log('test okay?');
+          console.log('uploaded file path>>>', uploadedFile.path);
           fs.renameSync(uploadedFile.path, newFilePath);
+          uploadedFiles.push(newFilePath);
         }
 
-        uploadedFiles.push(newFilePath.replace(ext, '.txt'));
       } else {
         // In production, just use the file as is
         uploadedFiles.push(uploadedFile.path);

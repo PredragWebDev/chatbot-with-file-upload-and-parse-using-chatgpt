@@ -88,6 +88,8 @@ export default async function handler(
     for (let i = 0; i < myDocs.length; i++) {
 
       const doc = [myDocs[i]];
+
+      console.log('doc>>>>>>>', doc);
       // Store the document chunks in Pinecone with their embeddings
       await PineconeStore.fromDocuments(doc, embeddings, {
         pineconeIndex: index,

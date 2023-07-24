@@ -1,0 +1,16 @@
+Here is the result of checking the sentences in the document:
+
+1. Source: You've Escaped!
+Here is the result of checking the sentences in the provided document:
+
+1. Source: You've EscapedSource: You've Escaped!
+Translation in this document: Та зугтлаа!
+ModifiedI apologize, but I am unable to check the translation of the entire document as it is too long toSource: You've Escaped!
+Translation in this document: Та зугтлаа!
+ModifiedResult of the task:
+
+1. Source: You've Escaped!
+   Translation in this document: Т1. Source: You've Escaped!
+   Translation in this document: Та зугтлаHere is the result of checking the sentences in the document:
+
+1. Source: You've Escaped!
