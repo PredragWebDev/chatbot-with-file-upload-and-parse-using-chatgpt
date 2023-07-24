@@ -63,20 +63,20 @@ export default async function handler(
     fs.writeFileSync('my docs.txt', JSON.stringify(docs));
 
     // OpenAI embeddings for the document chunks
-    const embeddings = new OpenAIEmbeddings({
-      openAIApiKey: openAIapiKey as string,
-    });
+    // const embeddings = new OpenAIEmbeddings({
+    //   openAIApiKey: openAIapiKey as string,
+    // });
 
     // Get the Pinecone index with the given name
-    const index = pinecone.Index(targetIndex);
+    // const index = pinecone.Index(targetIndex);
 
     // Store the document chunks in Pinecone with their embeddings
 
-    await PineconeStore.fromDocuments(docs, embeddings, {
-      pineconeIndex: index,
-      namespace: namespaceName as string,
-      textKey: 'text',
-    });
+    // await PineconeStore.fromDocuments(docs, embeddings, {
+    //   pineconeIndex: index,
+    //   namespace: namespaceName as string,
+    //   textKey: 'text',
+    // });
 
     // Delete the PDF, DOCX, TXT, CSV files
     const filesToDelete = fs

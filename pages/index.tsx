@@ -358,7 +358,7 @@ export default function Home() {
           </Dialog>
         </Transition.Root>
 
-        <div className="hidden h-screen overflow-y-hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        {/* <div className="hidden h-screen overflow-y-hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           <div className="flex flex-col h-full pb-4 bg-gray-900 border-r border-gray-800 grow">
             <div className="flex items-center h-8 shrink-0"></div>
             <SidebarList
@@ -380,13 +380,13 @@ export default function Home() {
               isLoadingNamespaces={isLoadingNamespaces}
             />
           </div>
-        </div>
+        </div> */}
 
-        <div className="h-screen lg:pl-72">
+        <div className="h-screen">
           <Header setSidebarOpen={setSidebarOpen} />
 
           <main className="flex flex-col">
-            {selectedNamespace !== '' && nameSpaceHasChats ? (
+            {/* {selectedNamespace !== '' && nameSpaceHasChats ? ( */}
               <div className="flex-grow pb-36" ref={messageBodyRef}>
                 <div className="h-full">
                   <MessageList
@@ -396,16 +396,16 @@ export default function Home() {
                   />
                 </div>
               </div>
-            ) : (
+            {/* ) : (
               <EmptyState
                 nameSpaceHasChats={nameSpaceHasChats}
                 selectedNamespace={selectedNamespace}
                 userHasNamespaces={userHasNamespaces}
               />
-            )}
+            )} */}
 
-            {nameSpaceHasChats && selectedNamespace && (
-              <div className="fixed bottom-0 flex justify-center w-full bg-gradient-to-t from-gray-800 to-gray-800/0 lg:pr-72">
+            {/* {nameSpaceHasChats && selectedNamespace && ( */}
+              <div className="fixed bottom-0 flex justify-center w-full bg-gradient-to-t from-gray-800 to-gray-800/0">
                 <ChatForm
                   loading={loading}
                   error={error}
@@ -416,7 +416,7 @@ export default function Home() {
                   setQuery={setQuery}
                 />
               </div>
-            )}
+            {/* )} */}
           </main>
         </div>
       </div>
