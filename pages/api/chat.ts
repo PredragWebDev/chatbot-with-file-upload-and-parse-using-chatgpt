@@ -179,7 +179,7 @@ export default async function handler(
       response_Source_doc = response.sourceDocuments;
   
       // fs.writeFileSync('result.txt', response.text);
-      fs.appendFileSync('result.txt', response.text + '\n');
+      fs.appendFileSync('result.txt', response.text + '\n\n');
     }
 
     // const vectorStore = await PineconeStore.fromExistingIndex(
