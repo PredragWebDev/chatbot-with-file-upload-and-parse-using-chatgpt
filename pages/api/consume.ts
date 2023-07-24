@@ -71,6 +71,7 @@ export default async function handler(
     const index = pinecone.Index(targetIndex);
 
     // Store the document chunks in Pinecone with their embeddings
+
     await PineconeStore.fromDocuments(docs, embeddings, {
       pineconeIndex: index,
       namespace: namespaceName as string,

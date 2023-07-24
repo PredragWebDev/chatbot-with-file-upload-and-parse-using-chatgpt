@@ -94,10 +94,10 @@ export default async function handler(
       await PineconeStore.fromDocuments(doc, embeddings, {
         pineconeIndex: index,
         // namespace: namespaceName as string,
-        namespace:selectedNamespace,
+        namespace: selectedNamespace as string,
         textKey: 'text',
       });
-
+      
       const vectorStore = await PineconeStore.fromExistingIndex(
         new OpenAIEmbeddings({
           openAIApiKey: openAIapiKey as string,
@@ -108,14 +108,15 @@ export default async function handler(
           namespace: selectedNamespace,
         },
       );
-
+      
       const chain = makeChain(
         vectorStore,
         returnSourceDocuments,
         modelTemperature,
         openAIapiKey as string,
-      );
-      const response = await chain.call({
+        );
+        console.log('test okay?');
+        const response = await chain.call({
         question: sanitizedQuestion,
         chat_history: history || [],
       });
@@ -127,6 +128,29 @@ export default async function handler(
       // fs.writeFileSync('result.txt', response.text);
       fs.appendFileSync('result.txt', response.text);
     }
+
+    // const vectorStore = await PineconeStore.fromExistingIndex(
+    //   new OpenAIEmbeddings({
+    //     openAIApiKey: openAIapiKey as string,
+    //   }),
+    //   {
+    //     pineconeIndex: index,
+    //     textKey: 'text',
+    //     namespace: selectedNamespace,
+    //   },
+    // );
+    
+    // const chain = makeChain(
+    //   vectorStore,
+    //   returnSourceDocuments,
+    //   modelTemperature,
+    //   openAIapiKey as string,
+    //   );
+    //   console.log('test okay?');
+    //   const response = await chain.call({
+    //   question: sanitizedQuestion,
+    //   chat_history: history || [],
+    // });
 
     res
       .status(200)

@@ -18,6 +18,7 @@ const QA_PROMPT = `You are an intelligent AI assistant designed to interpret and
 Context include the source and translation.
 You don't need to translate as yourself.
 Your job is to fetch the source, the translation from context, and make sure it's translated correctly.
+And provide the only answer. 
 
 Here is the context from the documents:
 

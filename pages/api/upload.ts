@@ -9,7 +9,7 @@ import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
 import fs from 'fs';
-import { result } from 'lodash';
+import { forEach, result } from 'lodash';
 
 interface UploadedFile {
   slice(arg0: number, arg1: number): unknown;
@@ -154,9 +154,14 @@ export default async function handler(
             //   fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
             //   isHeader = false;
             // }
+
             
-            fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data).join(', ') + '\n');
-            fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+            
+            if (data["1 file"] !== "") {
+
+              fs.appendFileSync(newFilePath.replace(ext, '.txt'), Object.values(data) + '\n');
+            }
+            // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
           .on('end', () => {
             console.log('CSV to txt');
