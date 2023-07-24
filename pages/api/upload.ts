@@ -97,7 +97,59 @@ export default async function handler(
 
     //______________combine end__________________////
     
-    
+    for (const file of Object.values(files) as UploadedFile[][]) {
+      if (!file || file.length === 0) {
+        continue;
+      }
+      const uploadedFile = file[0] as UploadedFile;
+
+      if (process.env.NODE_ENV !== 'production') {
+        // In local development, move the file from the OS temp directory to the project 'tmp' directory
+        const projectTmpDir = path.join(process.cwd(), 'tmp');
+        fs.mkdirSync(projectTmpDir, { recursive: true });
+
+        const newFilePath = path.join(
+          projectTmpDir,
+          uploadedFile.originalFilename,
+        );
+        // fs.renameSync(uploadedFile.path, newFilePath);
+
+        //CSV or XLSX convertion txt
+        const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
+
+        if (ext ==='.csv' || ext === '.xlsx') {
+          
+          let isHeader = true;
+          fs.createReadStream('combine.csv')
+          .pipe(csv())
+          .on('data', (data) => {
+            if (isHeader) {
+
+              fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.keys(data).join(', ') + '\n');
+              isHeader = false;
+            }
+            file_data.push(Object.values(data).join(', '));
+            
+            fs.appendFileSync(newFilePath.replace('.csv', '.txt'), Object.values(data).join(', ') + '\n');
+            fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+          })
+          .on('end', () => {
+            console.log('CSV to txt');
+          });
+
+          break;
+
+        } else {
+          fs.renameSync(uploadedFile.path, newFilePath);
+        }
+
+        uploadedFiles.push(newFilePath.replace(ext, '.txt'));
+      } else {
+        // In production, just use the file as is
+        uploadedFiles.push(uploadedFile.path);
+      }
+    }
+
     if (uploadedFiles.length > 0) {
       return res.status(200).json({
         message: `Files ${uploadedFiles.join(', ')} uploaded and moved!`,
