@@ -53,7 +53,7 @@ function saveDataToXlsx(data, filename) {
     const xlsxFile = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 
     console.log('test okay 2222?');
-    
+
     fs.writeFileSync(filename, xlsxFile);
     return 'saved the result to XLSX file!';
   }
@@ -176,7 +176,10 @@ export default async function handler(
 
       console.log('response>>>>', response);
 
-      const jsonData = JSON.parse(response);
+      console.log('response.text', response.text);
+      console.log('response[text]', response['text']);
+      
+      const jsonData = JSON.parse(response.text);
 
       console.log('parse okay?');
 
