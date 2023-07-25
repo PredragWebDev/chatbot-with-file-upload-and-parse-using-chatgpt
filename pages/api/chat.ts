@@ -14,6 +14,7 @@ import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
+import xlsx from 'xlsx';
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -37,6 +38,13 @@ function runMiddleware(
   })
 }
 
+function saveDataToXlsx(data, filename) {
+  const worksheet = xlsx.utils.json_to_sheet(data);
+  const workbook = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  const xlsxFile = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+  fs.writeFileSync(filename, xlsxFile);
+}
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -152,6 +160,9 @@ export default async function handler(
 
       console.log('response>>>>', response);
 
+      saveDataToXlsx(response, 'result.xlsx');
+
+      result = 'Saved the data to XLSX file!';
       
       // Store the document chunks in Pinecone with their embeddings
       // await PineconeStore.fromDocuments(doc, embeddings, {
