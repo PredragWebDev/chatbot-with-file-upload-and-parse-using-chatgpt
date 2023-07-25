@@ -108,15 +108,16 @@ export default async function handler(
     });
     const prompt = PromptTemplate.fromTemplate(
       `{context}
-      These are sentences with the same content in two languages.
+      -----------------
+      The sentences above are sentences with the same content in two languages.
       The original text is English and other language is translation.
 
       {question}
 
-      Provide results in the following JOSN format:
+      Provide the results in JOSN format like this:
       [
-        source:"",
-        translation:"",
+        original English sentence:"",
+        original translation:"",
         modified translation:"",
         reason:""
       ]
