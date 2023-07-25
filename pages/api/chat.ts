@@ -224,7 +224,7 @@ export default async function handler(
       // fs.appendFileSync('result.txt', response.text + '\n\n');
     }
 
-    result = saveDataToXlsx(jsonData, 'result.xlsx');
+    result = saveDataToXlsx(responseResult, 'result.xlsx');
 
     console.log('result>>>>', result);
 
