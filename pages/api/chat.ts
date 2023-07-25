@@ -113,7 +113,7 @@ export default async function handler(
 
       {question}
 
-      provide the result as following JOSN format
+      Provide results in the following JOSN format:
       [
         source:"",
         translation:"",
@@ -154,6 +154,8 @@ export default async function handler(
     // create new file for the result.
     fs.writeFileSync('result.txt', "the result \n\n");
 
+    let responseResult = {};
+
     for (let i = 0; i < myDocs.length; i++) {
 
       const doc = [myDocs[i]];
@@ -173,7 +175,7 @@ export default async function handler(
 
       const jsonData = JSON.parse(response.text);
 
-      result = saveDataToXlsx(jsonData, 'result.xlsx');
+      responseResult = [...responseResult, ...jsonData]
 
       // result = 'Saved the data to XLSX file!';
 
@@ -220,6 +222,10 @@ export default async function handler(
       // // fs.writeFileSync('result.txt', response.text);
       // fs.appendFileSync('result.txt', response.text + '\n\n');
     }
+
+    result = saveDataToXlsx(jsonData, 'result.xlsx');
+
+    console.log('result>>>>', result);
 
     // const vectorStore = await PineconeStore.fromExistingIndex(
     //   new OpenAIEmbeddings({
