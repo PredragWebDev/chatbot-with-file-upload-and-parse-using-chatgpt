@@ -41,7 +41,7 @@ export default function Settings() {
   );
   const [namespaces, setNamespaces] = useState<string[]>([]);
   const [ingestErrorMessage, setIngestErrorMessage] = useState<string>('');
-  const [chunkSize, setChunkSize] = useState<number>(4096);
+  const [chunkSize, setChunkSize] = useState<number>(2048);
   const [overlapSize, setOverlapSize] = useState<number>(20);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
   const [showChunkSizeModal, setShowChunkSizeModal] = useState<boolean>(false);
