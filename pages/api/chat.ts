@@ -124,132 +124,48 @@ export default async function handler(
       Don't provide the modified translation and reason if you don't need correction.`
     );
 
-    const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-      SystemMessagePromptTemplate.fromTemplate(
-        `You are an intelligent AI assistant designed to interpret and answer questions and instructions by referring to specific provided documents. The context from these documents has been processed and made accessible to you. 
-
-        Context include the source and translation.
-        You don't need to translate as yourself.
-        Your job is to fetch the source, the translation from context, and make sure it's translated correctly.
-        And provide the only answer. 
-
-        Here is the context from the documents:
-
-        Context: {context}`
-      ),
-      HumanMessagePromptTemplate.fromTemplate("{question}"),
-    ]);
-    // const index = pinecone.Index(targetIndex as string);
-
     let result ="";
     let response_Source_doc = "";
-    // OpenAI embeddings for the document chunks
-    // const embeddings = new OpenAIEmbeddings({
-    //   openAIApiKey: openAIapiKey as string,
-    // });
 
     const docs = fs.readFileSync('my docs.txt').toString();
 
     const myDocs = JSON.parse(docs);
 
     // create new file for the result.
-    fs.writeFileSync('result.txt', "the result \n\n");
 
     let responseResult = [];
 
     for (let i = 0; i < myDocs.length; i++) {
 
-      const doc = [myDocs[i]];
+      try {
+        const doc = [myDocs[i]];
 
-      const chain = new LLMChain({llm:model, prompt:prompt});
-
-      console.log('doc>>>', doc[0]['pageContent']);
-
-      console.log('getting response...');
-
-      const response = await chain.call({
-        context:doc[0]['pageContent'],
-        question:question
-      })
-
-      console.log('response>>>>', response);
-
-      const jsonData = JSON.parse(response.text);
-
-      responseResult = [...responseResult, ...jsonData]
-
-      // result = 'Saved the data to XLSX file!';
-
-      // Store the document chunks in Pinecone with their embeddings
-      // await PineconeStore.fromDocuments(doc, embeddings, {
-      //   pineconeIndex: index,
-      //   // namespace: namespaceName as string,
-      //   namespace: selectedNamespace as string,
-      //   textKey: 'text',
-      // });
-      
-      // const vectorStore = await PineconeStore.fromExistingIndex(
-      //   new OpenAIEmbeddings({
-      //     openAIApiKey: openAIapiKey as string,
-      //   }),
-      //   {
-      //     pineconeIndex: index,
-      //     textKey: 'text',
-      //     namespace: selectedNamespace,
-      //   },
-      // );
-
-      // console.log('vectorstore>>>', vectorStore);
-      
-      // const chain = makeChain(
-      // vectorStore,
-      // returnSourceDocuments,
-      // modelTemperature,
-      // openAIapiKey as string,
-      // );
-
-      // console.log('test okay?');
-
-      // const response = await chain.call({
-      // question: sanitizedQuestion,
-      // chat_history: history || [],
-      // });
-
-      // result += response.text + '\n';
-
-      // console.log('response>>>>', response.text);
-      // response_Source_doc = response.sourceDocuments;
+        const chain = new LLMChain({llm:model, prompt:prompt});
   
-      // // fs.writeFileSync('result.txt', response.text);
-      // fs.appendFileSync('result.txt', response.text + '\n\n');
+        console.log('doc>>>', doc[0]['pageContent']);
+  
+        console.log('getting response...');
+  
+        const response = await chain.call({
+          context:doc[0]['pageContent'],
+          question:question
+        })
+  
+        console.log('response>>>>', response);
+  
+        const jsonData = JSON.parse(response.text);
+  
+        responseResult = [...responseResult, ...jsonData]
+      }
+      catch (error) {
+        i --;
+      }
+      
     }
 
     result = saveDataToXlsx(responseResult, 'result.xlsx');
 
     console.log('result>>>>', result);
-
-    // const vectorStore = await PineconeStore.fromExistingIndex(
-    //   new OpenAIEmbeddings({
-    //     openAIApiKey: openAIapiKey as string,
-    //   }),
-    //   {
-    //     pineconeIndex: index,
-    //     textKey: 'text',
-    //     namespace: selectedNamespace,
-    //   },
-    // );
-    
-    // const chain = makeChain(
-    //   vectorStore,
-    //   returnSourceDocuments,
-    //   modelTemperature,
-    //   openAIapiKey as string,
-    //   );
-    //   console.log('test okay?');
-    //   const response = await chain.call({
-    //   question: sanitizedQuestion,
-    //   chat_history: history || [],
-    // });
 
     res
       .status(200)
