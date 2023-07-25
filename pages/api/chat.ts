@@ -134,6 +134,7 @@ export default async function handler(
     // create new file for the result.
 
     let responseResult = [];
+    let count_of_error = 0;
 
     for (let i = 0; i < myDocs.length; i++) {
 
@@ -158,7 +159,15 @@ export default async function handler(
         responseResult = [...responseResult, ...jsonData]
       }
       catch (error) {
-        i --;
+        count_of_error ++;
+        if (count_of_error === 3) {
+          count_of_error = 0
+        }
+        else {
+
+          i --;
+        }
+        console.log(error);
       }
       
     }
