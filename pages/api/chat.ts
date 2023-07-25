@@ -155,7 +155,7 @@ export default async function handler(
     // create new file for the result.
     fs.writeFileSync('result.txt', "the result \n\n");
 
-    let responseResult = {};
+    let responseResult = [];
 
     for (let i = 0; i < myDocs.length; i++) {
 
