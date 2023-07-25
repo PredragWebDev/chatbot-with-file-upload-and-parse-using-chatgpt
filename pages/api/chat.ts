@@ -144,11 +144,13 @@ export default async function handler(
         const chain = new LLMChain({llm:model, prompt:prompt});
   
         console.log('doc>>>', doc[0]['pageContent']);
+
+        const temp = doc[i]['pageContent'].replace(`"`, "'");
   
         console.log('getting response...');
   
         const response = await chain.call({
-          context:doc[0]['pageContent'],
+          context:temp,
           question:question
         })
   
