@@ -43,16 +43,10 @@ function saveDataToXlsx(data, filename) {
   try {
     const worksheet = xlsx.utils.json_to_sheet(data);
 
-    console.log('makin weksheet is ooay?');
-
     const workbook = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
 
-    console.log('test okay111');
-
     const xlsxFile = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-
-    console.log('test okay 2222?');
 
     fs.writeFileSync(filename, xlsxFile);
     return 'saved the result to XLSX file!';
@@ -176,12 +170,7 @@ export default async function handler(
 
       console.log('response>>>>', response);
 
-      console.log('response.text', response.text);
-      console.log('response[text]', response['text']);
-      
       const jsonData = JSON.parse(response.text);
-
-      console.log('parse okay?');
 
       result = saveDataToXlsx(jsonData, 'result.xlsx');
 
