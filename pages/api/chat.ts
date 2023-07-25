@@ -92,7 +92,16 @@ export default async function handler(
       `{context}
       These are sentences with the same content in two languages.
       The original text is English and other language is translation.
-      {question}`
+
+      {question}
+
+      provide the result as following JOSN format
+      [
+        source:"",
+        translation:"",
+        modified translation:"",
+        resean:""
+      ]`
     );
 
     const chatPrompt = ChatPromptTemplate.fromPromptMessages([
@@ -133,13 +142,17 @@ export default async function handler(
       const chain = new LLMChain({llm:model, prompt:prompt});
 
       console.log('doc>>>', doc[0]['pageContent']);
-      
+
       console.log('getting response...');
 
       const response = await chain.call({
         context:doc[0]['pageContent'],
         question:question
       })
+
+      console.log('response>>>>', response);
+
+      
       // Store the document chunks in Pinecone with their embeddings
       // await PineconeStore.fromDocuments(doc, embeddings, {
       //   pineconeIndex: index,
@@ -175,13 +188,13 @@ export default async function handler(
       // chat_history: history || [],
       // });
 
-      result += response.text + '\n';
+      // result += response.text + '\n';
 
-      console.log('response>>>>', response.text);
-      response_Source_doc = response.sourceDocuments;
+      // console.log('response>>>>', response.text);
+      // response_Source_doc = response.sourceDocuments;
   
-      // fs.writeFileSync('result.txt', response.text);
-      fs.appendFileSync('result.txt', response.text + '\n\n');
+      // // fs.writeFileSync('result.txt', response.text);
+      // fs.appendFileSync('result.txt', response.text + '\n\n');
     }
 
     // const vectorStore = await PineconeStore.fromExistingIndex(
