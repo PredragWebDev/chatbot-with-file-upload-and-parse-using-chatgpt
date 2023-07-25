@@ -145,7 +145,7 @@ export default async function handler(
   
         // console.log('doc>>>', doc[0]['pageContent']);
 
-        const temp = doc[i]['pageContent'].replace(`"`, "'");
+        const temp = doc[0]['pageContent'].replace(`"`, "'");
   
         console.log("temp", temp);
         console.log('getting response...');
