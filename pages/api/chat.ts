@@ -118,8 +118,9 @@ export default async function handler(
         source:"",
         translation:"",
         modified translation:"",
-        resean:""
-      ]`
+        reason:""
+      ]
+      Don't provide the modified translation and reason if you don't need correction.`
     );
 
     const chatPrompt = ChatPromptTemplate.fromPromptMessages([
