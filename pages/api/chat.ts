@@ -132,6 +132,8 @@ export default async function handler(
 
       const chain = new LLMChain({llm:model, prompt:prompt});
 
+      console.log('doc>>>', doc[0]['pageContent']);
+      
       console.log('getting response...');
 
       const response = await chain.call({
