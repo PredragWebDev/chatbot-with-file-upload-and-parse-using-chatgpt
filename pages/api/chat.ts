@@ -39,11 +39,18 @@ function runMiddleware(
 }
 
 function saveDataToXlsx(data, filename) {
-  const worksheet = xlsx.utils.json_to_sheet(data);
-  const workbook = xlsx.utils.book_new();
-  xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  const xlsxFile = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-  fs.writeFileSync(filename, xlsxFile);
+
+  try {
+    const worksheet = xlsx.utils.json_to_sheet(data);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const xlsxFile = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    fs.writeFileSync(filename, xlsxFile);
+    return 'saved the result to XLSX file!';
+  }
+  catch (error) {
+    return error;
+  }
 }
 export default async function handler(
   req: NextApiRequest,
@@ -160,10 +167,12 @@ export default async function handler(
 
       console.log('response>>>>', response);
 
-      saveDataToXlsx(response, 'result.xlsx');
+      const jsonData = JSON.parse(response);
 
-      result = 'Saved the data to XLSX file!';
-      
+      result = saveDataToXlsx(jsonData, 'result.xlsx');
+
+      // result = 'Saved the data to XLSX file!';
+
       // Store the document chunks in Pinecone with their embeddings
       // await PineconeStore.fromDocuments(doc, embeddings, {
       //   pineconeIndex: index,
