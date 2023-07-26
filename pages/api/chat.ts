@@ -102,8 +102,8 @@ export default async function handler(
 
     const model = new OpenAI({
       temperature: 0, // increase temepreature to get more creative answers
-      modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
-      // modelName: "text-davinci-003",
+      // modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
+      modelName: "text-davinci-003",
       openAIApiKey: openAIapiKey as string,
     });
     const prompt = PromptTemplate.fromTemplate(
