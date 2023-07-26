@@ -76,14 +76,14 @@ export default async function handler(
   const pineconeEnvironment = req.headers['x-pinecone-environment'];
   const targetIndex = req.headers['x-pinecone-index-name'] as string;
 
-  const pinecone = await initPinecone(
-    pineconeApiKey as string,
-    pineconeEnvironment as string,
-  );
+  // const pinecone = await initPinecone(
+  //   pineconeApiKey as string,
+  //   pineconeEnvironment as string,
+  // );
 
-  if (pinecone == null) {
-    return res.status(500).json({ error: 'Invalid Pincone' }); 
-  }
+  // if (pinecone == null) {
+  //   return res.status(500).json({ error: 'Invalid Pincone' }); 
+  // }
 
   if (!openAIapiKey) {
     return res.status(500).json({ error: 'OpenAI API key not set' });
@@ -103,6 +103,7 @@ export default async function handler(
     const model = new OpenAI({
       temperature: 0, // increase temepreature to get more creative answers
       // modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
+      maxTokens:2048,
       modelName: "text-davinci-003",
       openAIApiKey: openAIapiKey as string,
     });
@@ -152,7 +153,7 @@ export default async function handler(
   
         const response = await chain.call({
           context:temp,
-          question:question
+          question:sanitizedQuestion
         })
   
         console.log('response>>>>', response);
