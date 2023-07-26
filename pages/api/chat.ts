@@ -1,3 +1,4 @@
+import { TextareaProps } from './../../components/other/TextArea';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Cors from 'cors';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
@@ -102,9 +103,9 @@ export default async function handler(
 
     const model = new OpenAI({
       temperature: 0, // increase temepreature to get more creative answers
-      // modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
-      maxTokens:2048,
-      modelName: "text-davinci-003",
+      modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
+      // maxTokens:2048,
+      // modelName: "text-davinci-003",
       openAIApiKey: openAIapiKey as string,
     });
     const prompt = PromptTemplate.fromTemplate(
@@ -113,6 +114,7 @@ export default async function handler(
       The sentences above are sentences with the same content in two languages.
       The original text is English and other language is translation.
 
+
       {question}
 
       Provide the results in JOSN format like this:
@@ -120,7 +122,7 @@ export default async function handler(
         original English sentence:"",
         original translation:"",
         modified translation:"",
-        reason:""
+        reason of correction:""
       ]
       Don't provide the modified translation and reason if you don't need correction.`
     );
@@ -156,7 +158,7 @@ export default async function handler(
           question:sanitizedQuestion
         })
   
-        console.log('response>>>>', response);
+        console.log('response>>>>', response.text);
   
         const jsonData = JSON.parse(response.text);
   
