@@ -114,9 +114,8 @@ export default async function handler(
       The sentences above are sentences with the same content in two languages.
       The original text is English and other language is translation.
 
-
       {question}
-
+      Provide the original language sentence , other language sentence, the modified version , and explanation why you have made the correction.
       Provide the results in JOSN format like this:
       [
         original English sentence:"",
@@ -124,7 +123,7 @@ export default async function handler(
         modified translation:"",
         reason of correction:""
       ]
-      Don't provide the modified translation and reason if you don't need correction.`
+      If you have not done a correction, please leave modified translation and reason of correction empty.`
     );
 
     let result ="";
