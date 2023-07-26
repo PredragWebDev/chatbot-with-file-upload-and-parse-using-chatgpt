@@ -116,12 +116,12 @@ export default async function handler(
       {question}
 
       Provide the results in JOSN format like this:
-      [
+      
         original English sentence:"",
         original translation:"",
         modified translation:"",
         reason:""
-      ]
+      
       Provide the result without error when I parse the json.
       Don't provide the modified translation and reason if you don't need correction.`
     );
