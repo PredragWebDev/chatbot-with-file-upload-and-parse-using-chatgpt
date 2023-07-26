@@ -123,7 +123,7 @@ export default async function handler(
         modified translation:"",
         reason of correction:""
       ]
-      If you have not done a correction, please leave modified translation and reason of correction empty.`
+      If you have not done a correction, please leave the modified translation and the reason of correction empty.`
     );
 
     let result ="";
