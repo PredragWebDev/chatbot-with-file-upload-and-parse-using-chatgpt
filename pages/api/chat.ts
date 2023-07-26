@@ -164,6 +164,7 @@ export default async function handler(
         responseResult = [...responseResult, ...jsonData]
       }
       catch (error) {
+
         count_of_error ++;
         if (count_of_error === 3) {
           count_of_error = 0
@@ -172,7 +173,7 @@ export default async function handler(
 
           i --;
         }
-        console.log(error);
+        console.log(error.state);
       }
       
     }
