@@ -9,14 +9,10 @@ import fs from 'fs';
 import { PromptTemplate } from 'langchain/prompts';
 import { OpenAI } from 'langchain/llms/openai';
 import { LLMChain } from "langchain/chains";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from "langchain/prompts";
 import xlsx from 'xlsx';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -66,16 +62,17 @@ export default async function handler(
 
   const {
     question,
-    history,
-    selectedNamespace,
-    returnSourceDocuments,
-    modelTemperature,
+    // history,
+    // selectedNamespace,
+    // returnSourceDocuments,
+    // modelTemperature,
   } = req.body;
 
-  const openAIapiKey = req.headers['x-openai-key'];
-  const pineconeApiKey = req.headers['x-pinecone-key'];
-  const pineconeEnvironment = req.headers['x-pinecone-environment'];
-  const targetIndex = req.headers['x-pinecone-index-name'] as string;
+  // const openAIapiKey = req.headers['x-openai-key'];
+  const openAIapiKey = process.env.OPENAI_APIKEY;
+  // const pineconeApiKey = req.headers['x-pinecone-key'];
+  // const pineconeEnvironment = req.headers['x-pinecone-environment'];
+  // const targetIndex = req.headers['x-pinecone-index-name'] as string;
 
   // const pinecone = await initPinecone(
   //   pineconeApiKey as string,

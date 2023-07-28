@@ -310,7 +310,7 @@ export default function Settings() {
                     onKeyChange('openAIapiKey', key)
                   }
                 />
-                <KeyForm
+                {/* <KeyForm
                   keyName="Pinecone API Key"
                   keyValue={pineconeApiKey}
                   setKeyValue={(key: string) =>
@@ -330,12 +330,10 @@ export default function Settings() {
                   setKeyValue={(key: string) =>
                     onKeyChange('pineconeIndexName', key)
                   }
-                />
+                /> */}
               </div>
               {openAIapiKey &&
-                pineconeApiKey &&
-                pineconeEnvironment &&
-                pineconeIndexName && (
+                 (
                   <button
                     type="button"
                     className="rounded-md text-white mb-6 mx-auto items-center align-center justify-between flex px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold focus-visible:outline-indigo-500 shadow-sm ring-1 ring-inset bg-indigo-500 hover:bg-indigo-400"
