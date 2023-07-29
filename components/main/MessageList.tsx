@@ -9,6 +9,7 @@ import {
 } from '@/components/other/accordion/Accordion';
 import remarkGfm from 'remark-gfm';
 import { Message } from '@/types';
+import fileDialog from 'file-dialog';
 
 interface MessageListProps {
   messages: Message[];
@@ -18,15 +19,22 @@ interface MessageListProps {
 
 function MessageList({ messages, loading, messageListRef }: MessageListProps) {
 
-  const handle_save = (index_of_message) => {
+  const handle_save = async (index_of_message) => {
 
-    const input = document.createElement("input");
-    input.type = 'file';
-    input.accept = 'text/plain';
-    input.click();
-    const data = "Some text to save to a file";
-    const blob = new Blob([data], { type: 'text/plain' });
+    // const input = document.createElement("input");
+    // input.type = 'file';
+    // input.accept = 'text/plain';
+    // input.click();
+
+    // const file = await fileDialog({multiple:false})
+    
+    const blob = new Blob([messages[index_of_message].message], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'save.txt';
+    link.click();
+    URL.revokeObjectURL(url);
     
     // alert(messages[index_of_message].message);
   }

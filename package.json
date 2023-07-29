@@ -26,6 +26,7 @@
     "csv-writer": "^1.6.0",
     "d3-dsv": "^2.0.0",
     "dotenv": "^16.3.1",
+    "file-dialog": "^0.0.8",
     "formidable": "^2.1.1",
     "fs": "^0.0.1-security",
     "heroicons": "^2.0.17",
