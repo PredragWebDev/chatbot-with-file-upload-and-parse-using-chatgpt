@@ -94,7 +94,7 @@ const ChatForm = ({
               ? 'Waiting for response...'
               : error
               ? 'Error occurred. Try again.'
-              : 'Your message... || to open the saved file, please doble click'
+              : 'to open the saved file, please doble click here'
           }
           value={query}
           onChange={(e) => setQuery(e.target.value)}

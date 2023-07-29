@@ -1,13 +1,17 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Bars3Icon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-
+import { Bars3Icon, Cog6ToothIcon, InboxArrowDownIcon} from '@heroicons/react/24/outline';
+import axios from 'axios';
 interface HeaderProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   const router = useRouter();
+  const handleDownload = async () => {
+    const res = await axios.post('/api/download');
+    alert(res.data);
+  }
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-800 bg-gray-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 justify-between">
       <button
@@ -28,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
       <div className="flex-shrink-0" onClick={() => router.push('/settings')}>
         <button
           type="button"
-          className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="inline-flex items-center gap-x-1.5 mr-3 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           <Cog6ToothIcon
             className="-ml-0.5 h-4 w-4 sm:w-5 sm:h-5"
@@ -39,12 +43,14 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
         <button
           type="button"
           className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          onClick={handleDownload}
         >
-          <Cog6ToothIcon
+          <InboxArrowDownIcon
             className="-ml-0.5 h-4 w-4 sm:w-5 sm:h-5"
             aria-hidden="true"
           />
-          <a href='/api/download' >DownLoad</a>
+          DownLoad
+
         </button>
         
       </div>

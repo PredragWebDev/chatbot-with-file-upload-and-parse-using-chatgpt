@@ -16,7 +16,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import xlsx from 'xlsx';
-
+import axios from 'axios';
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -54,6 +54,22 @@ function saveDataToXlsx(data, filename) {
   }
   catch (error) {
     return error;
+  }
+}
+
+const getAPIkeyLimit = async (apikey) => {
+  try {
+    const response = await axios.get('https://api.openai.com/v1/usage', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apikey}`
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching API key limit:', error);
+    return null;
   }
 }
 export default async function handler(
@@ -162,7 +178,7 @@ export default async function handler(
 
         const temp = doc[0]['pageContent'].replace(`"`, "'");
   
-        console.log("temp", temp);
+        console.log("temp>>>>", temp);
         console.log('getting response...');
   
         const response = await chain.call({
@@ -191,6 +207,8 @@ export default async function handler(
       
     }
 
+    const limit = await getAPIkeyLimit(openAIapiKey);
+    console.log('api key limit>>>', limit);
     result = saveDataToXlsx(responseResult, 'result.xlsx');
 
     console.log('result>>>>', result);

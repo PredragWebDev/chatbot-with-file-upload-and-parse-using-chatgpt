@@ -77,7 +77,7 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
                             ? 'bg-indigo-400/10 text-indigo-400 ring-indigo-400/30'
                             : 'bg-purple-400/10 text-purple-400 ring-purple-400/30'
                           }`}>
-                          save
+                          Save
                           </span>
                         </button>}
                         
