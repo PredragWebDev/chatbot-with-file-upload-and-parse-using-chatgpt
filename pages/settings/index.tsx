@@ -310,7 +310,7 @@ export default function Settings() {
                     onKeyChange('openAIapiKey', key)
                   }
                 />
-                {/* <KeyForm
+                <KeyForm
                   keyName="Pinecone API Key"
                   keyValue={pineconeApiKey}
                   setKeyValue={(key: string) =>
@@ -330,10 +330,12 @@ export default function Settings() {
                   setKeyValue={(key: string) =>
                     onKeyChange('pineconeIndexName', key)
                   }
-                /> */}
+                />
               </div>
               {openAIapiKey &&
-                 (
+                pineconeApiKey &&
+                pineconeEnvironment &&
+                pineconeIndexName && (
                   <button
                     type="button"
                     className="rounded-md text-white mb-6 mx-auto items-center align-center justify-between flex px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold focus-visible:outline-indigo-500 shadow-sm ring-1 ring-inset bg-indigo-500 hover:bg-indigo-400"
@@ -349,8 +351,8 @@ export default function Settings() {
                     )}
                   </button>
                 )}
-              <div className="flex pt-4 border-t border-white justify-center items-center space-x-2 align-center mb-2">
-                {/* {namespaces.length > 0 ? (
+              <div className="flex pt-4 border-t border-white justify-between items-center space-x-2 align-center mb-2">
+                {namespaces.length > 0 ? (
                   <h2 className="mb-4 text-xl text-center sm:text-3xl sm:text-left font-bold text-white">
                     Your namespaces
                   </h2>
@@ -358,7 +360,7 @@ export default function Settings() {
                   <span className="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-red-400 ring-1 ring-inset ring-red-400/20">
                     No namespaces found
                   </span>
-                )} */}
+                )}
 
                 <button
                   type="button"
@@ -373,7 +375,7 @@ export default function Settings() {
                 </button>
               </div>
 
-              {/* <ul role="list" className="grid grid-cols-2 gap-4">
+              <ul role="list" className="grid grid-cols-2 gap-4">
                 {namespaces.map((namespace) => (
                   <li
                     key={namespace}
@@ -410,7 +412,7 @@ export default function Settings() {
                     </div>
                   </li>
                 ))}
-              </ul> */}
+              </ul>
 
               {deleteMessage && (
                 <p className="mt-6 text-md font-medium text-green-400 text-center">

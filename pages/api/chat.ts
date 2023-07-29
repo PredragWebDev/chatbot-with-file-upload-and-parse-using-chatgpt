@@ -9,10 +9,14 @@ import fs from 'fs';
 import { PromptTemplate } from 'langchain/prompts';
 import { OpenAI } from 'langchain/llms/openai';
 import { LLMChain } from "langchain/chains";
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  SystemMessagePromptTemplate,
+} from "langchain/prompts";
 import xlsx from 'xlsx';
-import dotenv from 'dotenv';
 
-dotenv.config();
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -62,26 +66,25 @@ export default async function handler(
 
   const {
     question,
-    // history,
-    // selectedNamespace,
-    // returnSourceDocuments,
-    // modelTemperature,
+    history,
+    selectedNamespace,
+    returnSourceDocuments,
+    modelTemperature,
   } = req.body;
 
-  // const openAIapiKey = req.headers['x-openai-key'];
-  const openAIapiKey = process.env.OPENAI_APIKEY;
-  // const pineconeApiKey = req.headers['x-pinecone-key'];
-  // const pineconeEnvironment = req.headers['x-pinecone-environment'];
-  // const targetIndex = req.headers['x-pinecone-index-name'] as string;
+  const openAIapiKey = req.headers['x-openai-key'];
+  const pineconeApiKey = req.headers['x-pinecone-key'];
+  const pineconeEnvironment = req.headers['x-pinecone-environment'];
+  const targetIndex = req.headers['x-pinecone-index-name'] as string;
 
-  // const pinecone = await initPinecone(
-  //   pineconeApiKey as string,
-  //   pineconeEnvironment as string,
-  // );
+  const pinecone = await initPinecone(
+    pineconeApiKey as string,
+    pineconeEnvironment as string,
+  );
 
-  // if (pinecone == null) {
-  //   return res.status(500).json({ error: 'Invalid Pincone' }); 
-  // }
+  if (pinecone == null) {
+    return res.status(500).json({ error: 'Invalid Pincone' }); 
+  }
 
   if (!openAIapiKey) {
     return res.status(500).json({ error: 'OpenAI API key not set' });
@@ -125,6 +128,19 @@ export default async function handler(
 
     let result ="";
     let response_Source_doc = "";
+
+    const index = pinecone.Index(targetIndex as string);
+
+    const vectorStore = await PineconeStore.fromExistingIndex(
+      new OpenAIEmbeddings({
+        openAIApiKey: openAIapiKey as string,
+      }),
+      {
+        pineconeIndex: index,
+        textKey: 'text',
+        namespace: selectedNamespace,
+      },
+    );
 
     const docs = fs.readFileSync('my docs.txt').toString();
 

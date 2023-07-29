@@ -17,6 +17,19 @@ interface MessageListProps {
 }
 
 function MessageList({ messages, loading, messageListRef }: MessageListProps) {
+
+  const handle_save = (index_of_message) => {
+
+    const input = document.createElement("input");
+    input.type = 'file';
+    input.accept = 'text/plain';
+    input.click();
+    const data = "Some text to save to a file";
+    const blob = new Blob([data], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // alert(messages[index_of_message].message);
+  }
   return (
     <>
       <div className="overflow-y-auto">
@@ -41,7 +54,7 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
                       >
                         {isApiMessage ? 'AI' : 'YOU'}
                       </span>
-                      <div className="mx-auto max-w-full">
+                      <div className="mx-auto max-w-full flex justify-between">
                         <ReactMarkdown
                           linkTarget="_blank"
                           className="markdown text-xs sm:text-sm md:text-base leading-relaxed"
@@ -49,6 +62,17 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
                         >
                           {message.message}
                         </ReactMarkdown>
+                        {isApiMessage ? '' : 
+                        <button onClick={() =>handle_save(index)}>
+                          <span className={`mt-2 inline-flex items-center rounded-md px-2 py-1 text-xs sm:text-sm font-medium ring-1 ring-inset ${
+                          isApiMessage
+                            ? 'bg-indigo-400/10 text-indigo-400 ring-indigo-400/30'
+                            : 'bg-purple-400/10 text-purple-400 ring-purple-400/30'
+                          }`}>
+                          save
+                          </span>
+                        </button>}
+                        
                       </div>
                     </div>
                     {message.sourceDocs && (

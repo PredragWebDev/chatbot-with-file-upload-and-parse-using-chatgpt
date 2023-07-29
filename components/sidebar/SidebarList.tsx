@@ -124,7 +124,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
       </div>
 
       <>
-        {/* <div className="w-full px-4 mb-6 space-y-2">
+        <div className="w-full px-4 mb-6 space-y-2">
           <div className="text-xs font-semibold leading-6 text-blue-400 sm:text-sm">
             Your namespaces
           </div>
@@ -154,7 +154,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
           </div>
           :
           ''
-        } */}
+        }
 
         <div className="px-4 text-xs font-semibold leading-6 text-blue-400 sm:text-sm">
           Your chats

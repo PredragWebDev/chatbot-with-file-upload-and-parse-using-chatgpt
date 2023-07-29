@@ -3,6 +3,7 @@ import {
   ExclamationCircleIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/solid';
+import fs from 'fs';
 
 type ChatFormProps = {
   loading: boolean;
@@ -14,6 +15,8 @@ type ChatFormProps = {
   setQuery: (query: string) => void;
 };
 
+
+
 const ChatForm = ({
   loading,
   error,
@@ -24,6 +27,29 @@ const ChatForm = ({
 }: ChatFormProps) => {
   const otherRef = useRef<HTMLTextAreaElement>(null);
 
+  const handleDoubleClick = () => {
+    const input = document.createElement("input");
+    input.type = 'file';
+    input.accept = 'text/plain';
+    input.click();
+  
+    let file = '';
+    input.onchange = handleOpenFile;
+  }
+  
+  const handleOpenFile = (event) => {
+    const file = event.target.files[0];
+ 
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        setQuery(evt.target.result);
+      }
+
+      reader.readAsText(file);
+    }
+    
+  }
   const adjustTextareaHeight = useCallback(() => {
     if (otherRef.current) {
       otherRef.current.style.height = 'auto';
@@ -55,6 +81,7 @@ const ChatForm = ({
         <textarea
           disabled={loading}
           onKeyDown={handleEnter}
+          onDoubleClick={handleDoubleClick}
           ref={otherRef}
           className="flex items-center justify-center w-full text-xs sm:text-sm md:text-base rounded-lg border bg-gray-900 border-gray-700 placeholder-gray-400 text-white focus:outline-none resize-none whitespace-pre-wrap overflow-y-auto"
           autoFocus={false}
@@ -67,7 +94,7 @@ const ChatForm = ({
               ? 'Waiting for response...'
               : error
               ? 'Error occurred. Try again.'
-              : 'Your message...'
+              : 'Your message... || to open the saved file, please doble click'
           }
           value={query}
           onChange={(e) => setQuery(e.target.value)}
