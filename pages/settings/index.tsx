@@ -33,6 +33,7 @@ export default function Settings() {
   const [message, setMessage] = useState<string>('');
   const [uploadMessage, setUploadMessage] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState(false);
+  const [filetype, setFiletype] = useState('*.xlsx');
   const [error, setError] = useState<{ message: string; customString: string }>(
     {
       message: '',
@@ -330,6 +331,12 @@ export default function Settings() {
                   setKeyValue={(key: string) =>
                     onKeyChange('pineconeIndexName', key)
                   }
+                />
+
+                <select
+                  id='typeOfFile'
+                  value={filetype}
+                  onChange={(e) => {setFiletype(e.target.value)}}
                 />
               </div>
               {openAIapiKey &&
