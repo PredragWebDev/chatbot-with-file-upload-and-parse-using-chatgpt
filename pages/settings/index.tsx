@@ -337,7 +337,12 @@ export default function Settings() {
                   id='typeOfFile'
                   value={filetype}
                   onChange={(e) => {setFiletype(e.target.value)}}
-                />
+                >
+                  <option value='xlsx'>*.xlsx</option>
+                  <option value='pdf'>*.pdf</option>
+                  <option value='docx'>*.docx</option>
+                  <option value='txt'>*.txt</option>
+                </select>
               </div>
               {openAIapiKey &&
                 pineconeApiKey &&
