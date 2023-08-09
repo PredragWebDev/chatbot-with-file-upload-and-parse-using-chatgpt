@@ -15,8 +15,9 @@ import { Dialog } from '@headlessui/react';
 import { ConversationMessage, Message } from '@/types';
 
 import { ChatForm, EmptyState, MessageList } from '@/components/main';
-import SidebarList from '@/components/sidebar/SidebarList';
+import SidebarList, {filetype} from '@/components/sidebar/SidebarList';
 import Header from '@/components/header/Header';
+import { useRouter } from 'next/router';
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -32,6 +33,8 @@ export default function Home() {
     pineconeEnvironment,
     pineconeIndexName,
   } = useKeys();
+
+  const router = useRouter();
 
   const {
     namespaces,
@@ -210,6 +213,8 @@ export default function Home() {
       console.error('API keys not found.');
       return;
     }
+
+    // const type = SidebarList.filetype;
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -218,6 +223,7 @@ export default function Home() {
         'X-Pinecone-Key': pineconeApiKey,
         'X-Pinecone-Environment': pineconeEnvironment,
         'X-Pinecone-Index-Name': pineconeIndexName,
+        'X-fileType': filetype
       },
       body: JSON.stringify({
         question,

@@ -9,6 +9,7 @@ interface Keys {
   pineconeEnvironment: string;
   setPineconeEnvironment: (key: string) => void;
   pineconeIndexName: string;
+  typeOfFile:string;
   setPineconeIndexName: (key: string) => void;
   handleKeyChange: (storageKey: string, keyValue: string) => void;
   handleSubmitKeys: () => void;
@@ -19,7 +20,8 @@ const useKeys = (): Keys => {
     openAIapiKey: getItem('openAIapiKey') || '',
     pineconeApiKey: getItem('pineconeApiKey') || '',
     pineconeEnvironment: getItem('pineconeEnvironment') || '',
-    pineconeIndexName: getItem('pineconeIndexName') || ''
+    pineconeIndexName: getItem('pineconeIndexName') || '',
+    typeOfFile: getItem('typeOfFile') || ''
   });
 
   const setKey = (keyName: string, keyValue: string) => {

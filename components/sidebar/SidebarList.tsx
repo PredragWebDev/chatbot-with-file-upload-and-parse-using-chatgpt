@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlusCircleIcon } from '@heroicons/react/20/solid';
 import Button from '@/components/buttons/Button';
 import { useKeys } from '@/hooks';
@@ -28,6 +28,7 @@ interface SidebarListProps {
   setSelectedNamespace: React.Dispatch<React.SetStateAction<string>>;
   isLoadingNamespaces: boolean;
 }
+const filetype = '*.xlsx';
 
 const SidebarList: React.FC<SidebarListProps> = ({
   selectedNamespace,
@@ -54,6 +55,8 @@ const SidebarList: React.FC<SidebarListProps> = ({
     pineconeEnvironment,
     pineconeIndexName,
   } = useKeys();
+
+  const [filetype, setFiletype] = useState('*.xlsx');
 
   const [copyText, setCopyText] = React.useState("copy");
   const [embedScript, setEmbedScript] = React.useState("");
@@ -136,7 +139,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
           />
         </div>
 
-        {
+        {/* {
           selectedNamespace
           ?
           <div className="w-full px-4 mb-6 space-y-2 block">
@@ -154,8 +157,30 @@ const SidebarList: React.FC<SidebarListProps> = ({
           </div>
           :
           ''
-        }
+        } */}
 
+        <div className=' border-t-2 border-white border-solid my-8 px-4'>
+          <form >
+            <div className='relative mt-4'>
+              <p className="text-white text-sm mb-2 text-xl">
+                Please select the type of file you want to save.
+                {/* {keyName.charAt(0).toUpperCase() + keyName.slice(1)} */}
+              </p>
+              <select
+                id='typeOfFile'
+                value={filetype}
+                onChange={(e) => {setFiletype(e.target.value)}}
+                className=' bg-gray-800 border-gray-700 text-white w-full rounded-md'
+              >
+                <option value='xlsx'>*.xlsx</option>
+                <option value='pdf'>*.pdf</option>
+                <option value='docx'>*.docx</option>
+                <option value='txt'>*.txt</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        
         <div className="px-4 text-xs font-semibold leading-6 text-blue-400 sm:text-sm">
           Your chats
         </div>
@@ -181,5 +206,5 @@ const SidebarList: React.FC<SidebarListProps> = ({
     </nav>
   );
 };
-
 export default SidebarList;
+export {filetype};

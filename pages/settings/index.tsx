@@ -33,7 +33,6 @@ export default function Settings() {
   const [message, setMessage] = useState<string>('');
   const [uploadMessage, setUploadMessage] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState(false);
-  const [filetype, setFiletype] = useState('*.xlsx');
   const [error, setError] = useState<{ message: string; customString: string }>(
     {
       message: '',
@@ -325,25 +324,15 @@ export default function Settings() {
                     onKeyChange('pineconeEnvironment', key)
                   }
                 />
-                <KeyForm
+                <KeyForm             
                   keyName="Pinecone index name"
                   keyValue={pineconeIndexName}
                   setKeyValue={(key: string) =>
                     onKeyChange('pineconeIndexName', key)
                   }
                 />
-
-                <select
-                  id='typeOfFile'
-                  value={filetype}
-                  onChange={(e) => {setFiletype(e.target.value)}}
-                >
-                  <option value='xlsx'>*.xlsx</option>
-                  <option value='pdf'>*.pdf</option>
-                  <option value='docx'>*.docx</option>
-                  <option value='txt'>*.txt</option>
-                </select>
               </div>
+              
               {openAIapiKey &&
                 pineconeApiKey &&
                 pineconeEnvironment &&
@@ -363,6 +352,9 @@ export default function Settings() {
                     )}
                   </button>
                 )}
+
+                
+
               <div className="flex pt-4 border-t border-white justify-between items-center space-x-2 align-center mb-2">
                 {namespaces.length > 0 ? (
                   <h2 className="mb-4 text-xl text-center sm:text-3xl sm:text-left font-bold text-white">
@@ -386,7 +378,7 @@ export default function Settings() {
                   />
                 </button>
               </div>
-
+              
               <ul role="list" className="grid grid-cols-2 gap-4">
                 {namespaces.map((namespace) => (
                   <li
