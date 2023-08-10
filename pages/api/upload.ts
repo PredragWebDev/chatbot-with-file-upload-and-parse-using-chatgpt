@@ -196,17 +196,19 @@ export default async function handler(
   
             if (data["1 file"] !== "") {
 
-              for (let i = 0; i < Object.values(data).length; i ++) {
-                if (i === Object.values(data).length -1) {
+              // for (let i = 0; i < Object.values(data).length; i ++) {
+                // if (i === Object.values(data).length -1) {
                   console.log('file data>>>>', data[`${i+1} file`]);
-                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + '\n\n');
-                } else {
-                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + ', ');
-                  console.log('file data>>>>', data[`${i+1} file`]);
-                }
+                  // fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + '\n\n');
+                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`1 file`] + ', ' +  data[`2 file`] + '\n\n');
+                // }
+                // } else {
+                //   fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + ', ');
+                //   console.log('file data>>>>', data[`${i+1} file`]);
+                // }
 
 
-              }
+              // }
             }
             // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
