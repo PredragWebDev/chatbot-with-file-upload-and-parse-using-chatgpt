@@ -109,7 +109,6 @@ export default async function handler(
             break;
         }
   
-        console.log('filecontents>>>>>', filecontent)
         data[`${index_of_file+1} file`] = filecontent.split('\n');
         index_of_file++;
       }
@@ -187,44 +186,28 @@ export default async function handler(
         //CSV or XLSX convertion txt
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
-        // if (ext ==='.csv' || ext === '.xlsx') {
-          
-          // let isHeader = true;
-          fs.createReadStream('combined.csv')
-          .pipe(csv())
-          .on('data', (data) => {
-  
-            if (data["1 file"] !== "") {
+        let context = "";
+        fs.createReadStream('combined.csv')
+        .pipe(csv())
+        .on('data', (data) => {
 
-              // for (let i = 0; i < Object.values(data).length; i ++) {
-                // if (i === Object.values(data).length -1) {
-                  console.log('file data>>>>', data[`${i+1} file`]);
-                  // fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + '\n\n');
-                  fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`1 file`] + ', ' +  data[`2 file`] + '\n\n');
-                // }
-                // } else {
-                //   fs.appendFileSync(newFilePath.replace(ext, '.txt'), data[`${i+1} file`] + ', ');
-                //   console.log('file data>>>>', data[`${i+1} file`]);
-                // }
+          // console.log('data>>>', data);
+          if (data["1 file"] !== "") {
 
+            // console.log("test>>>",data['1 file']);
+            context += data[`1 file`] + ', ' +  data[`2 file`] + '\n'
+            
+          }
+          // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+        })
+        .on('end', () => {
+          context = context.replaceAll('\r', ' ');
+          fs.writeFileSync(newFilePath.replace(ext, '.txt'), context);
+          console.log('CSV to txt');
+        });
 
-              // }
-            }
-            // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
-          })
-          .on('end', () => {
-            console.log('CSV to txt');
-          });
-
-          uploadedFiles.push(newFilePath.replace(ext, '.txt'));
-          break;
-
-        // } else {
-        //   console.log('test okay?');
-        //   console.log('uploaded file path>>>', uploadedFile.path);
-        //   fs.renameSync(uploadedFile.path, newFilePath);
-        //   uploadedFiles.push(newFilePath);
-        // }
+        uploadedFiles.push(newFilePath.replace(ext, '.txt'));
+        break;
 
       } else {
         // In production, just use the file as is

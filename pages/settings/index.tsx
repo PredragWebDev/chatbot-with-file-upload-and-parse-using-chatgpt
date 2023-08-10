@@ -52,6 +52,7 @@ export default function Settings() {
   const [showChunkSizeModal, setShowChunkSizeModal] = useState<boolean>(false);
   const [showOverlapSizeModal, setShowOverlapSizeModal] =
     useState<boolean>(false);
+    const [isToggled, setIsToggled] = useState(false);
   const router = useRouter();
 
   const fetchNamespaces = async (openAIapiKey: string, pineconeApiKey: string, pineconeEnvironment: string, pineconeIndexName: str) => {
@@ -197,13 +198,14 @@ export default function Settings() {
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append(`myfile${i}`, selectedFiles[i]);
     }
+    
 
     try {
       setUploadMessage('Uploading...');
       setUploadStatus(false);
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: formData
       });
 
       if (response.ok) {
@@ -494,7 +496,10 @@ export default function Settings() {
             </div>
             {/* upload area */}
             <div className="mt-4 sm:mt-8 flex justify-end">
-              <ToggleButton/>
+              <button className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 mr-2"
+                onClick={setIsToggled(!isToggled)}>
+                {isToggled ? 'complex' : 'separate'}
+              </button>
               <button
                 className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 onClick={handleUpload}
