@@ -43,7 +43,7 @@
     "next-auth": "^4.22.1",
     "node-localstorage": "^2.2.1",
     "papaparse": "^5.4.1",
-    "pdf-parse": "1.1.1",
+    "pdf-parse": "^1.1.1",
     "pdfkit": "^0.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",

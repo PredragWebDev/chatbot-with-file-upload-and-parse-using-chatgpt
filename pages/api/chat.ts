@@ -263,94 +263,97 @@ export default async function handler(
     let responseResult = [];
     let count_of_error = 0;
 
-    // for (let i = 0; i < myDocs.length; i++) {
+    for (let i = 0; i < myDocs.length; i++) {
 
-    //   try {
-    //     const doc = [myDocs[i]];
+      try {
+        const doc = [myDocs[i]];
 
-    //     const chain = new LLMChain({llm:model, prompt:prompt});
+        const chain = new LLMChain({llm:model, prompt:prompt});
   
-    //     // console.log('doc>>>', doc[0]['pageContent']);
+        // console.log('doc>>>', doc[0]['pageContent']);
 
-    //     const temp = doc[0]['pageContent'].replace(`"`, "'");
+        const temp = doc[0]['pageContent'].replace(`"`, "'");
   
-    //     console.log("temp>>>>", temp);
-    //     console.log('getting response...');
+        console.log("temp>>>>", temp);
+        console.log('getting response...');
   
-    //     const response = await chain.call({
-    //       context:temp,
-    //       question:sanitizedQuestion
-    //     })
+        const response = await chain.call({
+          context:temp,
+          question:sanitizedQuestion
+        })
   
-    //     console.log('response>>>>', response.text);
+        console.log('response>>>>', response.text);
   
-    //     const jsonData = JSON.parse(response.text);
+        const jsonData = JSON.parse(response.text);
   
-    //     responseResult = [...responseResult, ...jsonData]
-    //   }
-    //   catch (error) {
+        responseResult = [...responseResult, ...jsonData]
+      }
+      catch (error) {
 
-    //     count_of_error ++;
-    //     if (count_of_error === 3) {
-    //       count_of_error = 0
-    //     }
-    //     else {
+        // count_of_error ++;
+        // if (count_of_error === 3) {
+        //   count_of_error = 0
+        // }
+        // else {
 
-    //       i --;
-    //     }
-    //     console.log(error.state);
-    //   }
+        //   i --;
+        // }
+        console.log(error.state);
+      }
       
-    // }
+    }
 
-    // const limit = await getAPIkeyLimit(openAIapiKey);
-    // console.log('api key limit>>>', limit);
+    const limit = await getAPIkeyLimit(openAIapiKey);
+    console.log('api key limit>>>', limit);
     // result = saveDataToXlsx(responseResult, 'result.xlsx');
 
-    // console.log('result>>>>', result);
-    let chat_history = [];
-    const chain = makeChain(
-      vectorStore,
-      returnSourceDocuments,
-      modelTemperature,
-      openAIapiKey as string,
-    );
+    console.log('result>>>>', result);
 
-    for (let i = 0; i < 2 ; i ++) {
+
+
+    // let chat_history = [];
+    // const chain = makeChain(
+    //   vectorStore,
+    //   returnSourceDocuments,
+    //   modelTemperature,
+    //   openAIapiKey as string,
+    // );
+
+    // for (let i = 0; i < 2 ; i ++) {
       
-      const response = await chain.call({
-        question: sanitizedQuestion,
-        chat_history: chat_history || [],
-      });
+    //   const response = await chain.call({
+    //     question: sanitizedQuestion,
+    //     chat_history: chat_history || [],
+    //   });
   
-      console.log('result response.text>>>>', response.text);
-      const jsonData = JSON.parse(response.text);
-      chat_history = [...chat_history, ...jsonData]
-    }
+    //   console.log('result response.text>>>>', response.text);
+    //   const jsonData = JSON.parse(response.text);
+    //   chat_history = [...chat_history, ...jsonData]
+    // }
 
 
     console.log('filetype of local storage>>>', filetype);
 
     
-    console.log('the result >>>>', chat_history);
+    // console.log('the result >>>>', chat_history);
     switch (filetype) {
       case 'xlsx':
-        result = saveDataToXlsx(chat_history, 'result.xlsx');
+        result = saveDataToXlsx(responseResult, 'result.xlsx');
         break;
       case 'pdf':
         
-        result = savaDataToPDF(jsonData, 'result.pdf');
+        result = savaDataToPDF(responseResult, 'result.pdf');
         break;
       case 'docx':
         console.log('docx saving');
-        result = saveDataToDocx(jsonData, 'result.docx');
+        result = saveDataToDocx(responseResult, 'result.docx');
         break;
       case 'txt':
-        result = savaDataToTXT(jsonData, 'result.txt');
+        result = savaDataToTXT(responseResult, 'result.txt');
         break;
     
       default:
-        result = saveDataToXlsx(jsonData, 'result.xlsx');
+        result = saveDataToXlsx(responseResult, 'result.xlsx');
         break;
     }
     

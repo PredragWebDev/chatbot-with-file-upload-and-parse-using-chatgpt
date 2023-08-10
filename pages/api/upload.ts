@@ -8,6 +8,8 @@ import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CSVLoader } from 'langchain/document_loaders/fs/csv';
+import { PDFParser } from 'pdf-parse';
+
 // const createCsvWriter  = require('csv-writer').createArrayCsvWriter;
 // import createCsvWriter from 'csv-writer';
 import multiparty from 'multiparty';
@@ -31,6 +33,32 @@ export const config = {
   },
 };
 
+async function parsePDF(filePath) {
+  try {
+    const dataBuffer = fs.readFileSync(filePath);
+    const pdfParser = new PDFParser();
+    pdfParser.loadPDF(dataBuffer);
+
+    pdfParser.on('pdfParser_dataReady', function (parsedData) {
+      const content = parsedData.text;
+
+      console.log(content); // or do something else with the parsed content
+      return content;
+    });
+
+    pdfParser.on('pdfParser_dataError', function (error) {
+      console.error('Error occurred while parsing the PDF:', error);
+      return 'error';
+    });
+    
+    pdfParser.parse();
+
+  } catch (error) {
+    console.error('Error occurred while loading the PDF:', error);
+    return 'error';
+
+  }
+}
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -70,8 +98,8 @@ export default async function handler(
             filecontent = loader.load();
             break;
           case '.txt':
-            loader = new TextLoader(uploadedFile.path);
-            filecontent = loader.load();
+            console.log('filepath>>>', uploadedFile.path);
+            filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
             break;
           case '.docx':
             loader = new DocxLoader(uploadedFile.path);
@@ -81,7 +109,8 @@ export default async function handler(
             break;
         }
   
-        data[`${index_of_file+1} file`] = filecontent.spite('\n');
+        console.log('filecontents>>>>>', filecontent)
+        data[`${index_of_file+1} file`] = filecontent.split('\n');
         index_of_file++;
       }
 
@@ -158,7 +187,7 @@ export default async function handler(
         //CSV or XLSX convertion txt
         const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
-        if (ext ==='.csv' || ext === '.xlsx') {
+        // if (ext ==='.csv' || ext === '.xlsx') {
           
           // let isHeader = true;
           fs.createReadStream('combined.csv')
@@ -188,12 +217,12 @@ export default async function handler(
           uploadedFiles.push(newFilePath.replace(ext, '.txt'));
           break;
 
-        } else {
-          console.log('test okay?');
-          console.log('uploaded file path>>>', uploadedFile.path);
-          fs.renameSync(uploadedFile.path, newFilePath);
-          uploadedFiles.push(newFilePath);
-        }
+        // } else {
+        //   console.log('test okay?');
+        //   console.log('uploaded file path>>>', uploadedFile.path);
+        //   fs.renameSync(uploadedFile.path, newFilePath);
+        //   uploadedFiles.push(newFilePath);
+        // }
 
       } else {
         // In production, just use the file as is
