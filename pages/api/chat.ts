@@ -19,7 +19,9 @@ import xlsx from 'xlsx';
 import axios from 'axios';
 import { getItem } from '@/libs/localStorageKeys';
 import PDFDocument from 'pdfkit';
-
+import Docxtemplater from 'docxtemplater';
+import JSzip from 'jszip';
+import { Document, Paragraph } from 'docx';
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -90,8 +92,10 @@ function savaDataToPDF(data, filename) {
 
     // Add each node data to the PDF
     data.forEach((node) => {
-      doc.text(node['original English sentence']);
-      doc.text(node['original translation']);
+      console.log(node['original translation']);
+
+      doc.text(`${node['original English sentence']}`);
+      doc.text(`${node['original translation']}`);
       doc.text(node['modified translation']);
       doc.text(node['reason of correction']);
       doc.moveDown();
@@ -103,6 +107,19 @@ function savaDataToPDF(data, filename) {
 
     return 'Saved the result to the PDF!';
   } catch (error) {
+    return error;
+  }
+}
+
+function saveDataToDocx(data, filename) {
+  try {
+
+    return 'Saved the result to the docx!';
+
+  } 
+  catch (error) {
+
+    console.log(error);
     return error;
   }
 }
@@ -284,10 +301,12 @@ export default async function handler(
         result = saveDataToXlsx(jsonData, 'result.xlsx');
         break;
       case 'pdf':
-        result = saveDataToXlsx(jsonData, 'result.xlsx');
+        
+        result = savaDataToPDF(jsonData, 'result.pdf');
         break;
       case 'docx':
-        result = saveDataToXlsx(jsonData, 'result.xlsx');
+        console.log('docx saving');
+        result = saveDataToDocx(jsonData, 'result.docx');
         break;
       case 'txt':
         result = savaDataToTXT(jsonData, 'result.txt');

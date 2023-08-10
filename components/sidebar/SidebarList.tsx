@@ -148,7 +148,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
           />
         </div>
 
-        {/* {
+        {
           selectedNamespace
           ?
           <div className="w-full px-4 mb-6 space-y-2 block">
@@ -166,7 +166,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
           </div>
           :
           ''
-        } */}
+        }
 
         <div className=' border-t-2 border-white border-solid my-8 px-4'>
           <form >
