@@ -15,9 +15,10 @@ import { Dialog } from '@headlessui/react';
 import { ConversationMessage, Message } from '@/types';
 
 import { ChatForm, EmptyState, MessageList } from '@/components/main';
-import SidebarList, {filetype} from '@/components/sidebar/SidebarList';
+import SidebarList from '@/components/sidebar/SidebarList';
 import Header from '@/components/header/Header';
 import { useRouter } from 'next/router';
+import { getItem } from '@/libs/localStorageKeys';
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -214,6 +215,10 @@ export default function Home() {
       return;
     }
 
+    const filetype = getItem('filetype');
+    
+    console.log('file type in index.>>>>', filetype);
+
     // const type = SidebarList.filetype;
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -222,8 +227,7 @@ export default function Home() {
         'X-OpenAI-Key': openAIapiKey,
         'X-Pinecone-Key': pineconeApiKey,
         'X-Pinecone-Environment': pineconeEnvironment,
-        'X-Pinecone-Index-Name': pineconeIndexName,
-        'X-fileType': filetype
+        'X-Pinecone-Index-Name': pineconeIndexName
       },
       body: JSON.stringify({
         question,
@@ -232,6 +236,7 @@ export default function Home() {
         selectedNamespace,
         returnSourceDocuments,
         modelTemperature,
+        filetype
       }),
     });
 

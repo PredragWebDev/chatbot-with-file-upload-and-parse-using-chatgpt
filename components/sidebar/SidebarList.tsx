@@ -9,6 +9,7 @@ import {
   SourceDocumentsToggle,
   ModelTemperature,
 } from './components/index';
+import { getItem, setItem } from '@/libs/localStorageKeys';
 
 interface SidebarListProps {
   createChat: () => string;
@@ -28,7 +29,7 @@ interface SidebarListProps {
   setSelectedNamespace: React.Dispatch<React.SetStateAction<string>>;
   isLoadingNamespaces: boolean;
 }
-const filetype = '*.xlsx';
+
 
 const SidebarList: React.FC<SidebarListProps> = ({
   selectedNamespace,
@@ -56,10 +57,18 @@ const SidebarList: React.FC<SidebarListProps> = ({
     pineconeIndexName,
   } = useKeys();
 
-  const [filetype, setFiletype] = useState('*.xlsx');
+  const [filetype, setFiletype] = useState('xlsx');
 
   const [copyText, setCopyText] = React.useState("copy");
   const [embedScript, setEmbedScript] = React.useState("");
+
+  useEffect(() => {
+      setItem('filetype', filetype);
+
+      const test = getItem('filetype');
+
+      console.log('test', test);
+  }, [filetype]);
 
   const copyToClipboard = (content: any) => {
     const el = document.createElement('textarea');
@@ -207,4 +216,3 @@ const SidebarList: React.FC<SidebarListProps> = ({
   );
 };
 export default SidebarList;
-export {filetype};
