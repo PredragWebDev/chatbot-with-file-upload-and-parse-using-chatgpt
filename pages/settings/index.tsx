@@ -1,3 +1,4 @@
+import { PlusCircleIcon } from '@heroicons/react/20/solid';
 import React, { useState, useEffect, useCallback } from 'react';
 import { getItem, setItem } from '@/libs/localStorageKeys';
 import { useRouter } from 'next/router';
@@ -11,8 +12,12 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
+
+import ToggleButton from './components/ToggleButton';
+
 import Pattern from './components/Pattern';
 import KeyForm from '@/components/keyform/KeyForm';
+import Button from '@/components/buttons/Button';
 
 export default function Settings() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -489,6 +494,7 @@ export default function Settings() {
             </div>
             {/* upload area */}
             <div className="mt-4 sm:mt-8 flex justify-end">
+              <ToggleButton/>
               <button
                 className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 onClick={handleUpload}

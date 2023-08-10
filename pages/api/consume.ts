@@ -69,6 +69,7 @@ export default async function handler(
 
     // Get the Pinecone index with the given name
     const index = pinecone.Index(targetIndex);
+    console.log('okay??');
 
     // Store the document chunks in Pinecone with their embeddings
 
@@ -77,6 +78,7 @@ export default async function handler(
       namespace: namespaceName as string,
       textKey: 'text',
     });
+    console.log('okay???')
 
     // Delete the PDF, DOCX, TXT, CSV files
     const filesToDelete = fs

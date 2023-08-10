@@ -21,7 +21,8 @@ import { getItem } from '@/libs/localStorageKeys';
 import PDFDocument from 'pdfkit';
 import Docxtemplater from 'docxtemplater';
 import JSzip from 'jszip';
-import { Document, Paragraph } from 'docx';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -113,13 +114,40 @@ function savaDataToPDF(data, filename) {
 
 function saveDataToDocx(data, filename) {
   try {
+    const doc = new Document();
 
-    return 'Saved the result to the docx!';
+    // Write the result header
+    doc.addSection({
+      children: [
+        new Paragraph({
+          alignment: 'CENTER',
+          children: [
+            new TextRun("The Result")
+          ],
+        })
+      ]
+    });
 
-  } 
-  catch (error) {
+    // Add each node data to the DOCX
+    data.forEach((node) => {
+      doc.addSection({
+        children: [
+          new Paragraph(node['original English sentence']),
+          new Paragraph(node['original translation']),
+          new Paragraph(node['modified translation']),
+          new Paragraph(node['reason of correction']),
+          new Paragraph(''), // for space between entries
+        ],
+      });
+    });
 
-    console.log(error);
+    // Save the DOCX
+    Packer.toBuffer(doc).then((buffer) => {
+      fs.writeFileSync(filename, buffer);
+    });
+
+    return 'Saved the result to the DOCX!';
+  } catch (error) {
     return error;
   }
 }
@@ -280,25 +308,34 @@ export default async function handler(
     // result = saveDataToXlsx(responseResult, 'result.xlsx');
 
     // console.log('result>>>>', result);
-    
+    let chat_history = [];
     const chain = makeChain(
       vectorStore,
       returnSourceDocuments,
       modelTemperature,
       openAIapiKey as string,
     );
-    const response = await chain.call({
-      question: sanitizedQuestion,
-      chat_history: history || [],
-    });
+
+    for (let i = 0; i < 2 ; i ++) {
+      
+      const response = await chain.call({
+        question: sanitizedQuestion,
+        chat_history: chat_history || [],
+      });
+  
+      console.log('result response.text>>>>', response.text);
+      const jsonData = JSON.parse(response.text);
+      chat_history = [...chat_history, ...jsonData]
+    }
+
 
     console.log('filetype of local storage>>>', filetype);
 
-    const jsonData = JSON.parse(response.text);
-    console.log('the result >>>>', jsonData);
+    
+    console.log('the result >>>>', chat_history);
     switch (filetype) {
       case 'xlsx':
-        result = saveDataToXlsx(jsonData, 'result.xlsx');
+        result = saveDataToXlsx(chat_history, 'result.xlsx');
         break;
       case 'pdf':
         

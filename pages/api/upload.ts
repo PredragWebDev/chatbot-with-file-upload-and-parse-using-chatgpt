@@ -63,8 +63,7 @@ export default async function handler(
         const results = Papa.parse(fileData, {
           hearder: true,
           skipEmputyLines:true
-  
-        })
+          })
   
         const columnName = Object.keys(results.data[0][0])[0];
   
