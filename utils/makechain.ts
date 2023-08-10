@@ -13,20 +13,22 @@ Make sure your standalone question is self-contained, clear, and specific. Rephr
 
 // --------------------------------------------------
 
-const QA_PROMPT = `You are an intelligent AI assistant designed to interpret and answer questions and instructions by referring to specific provided documents. The context from these documents has been processed and made accessible to you. 
+const QA_PROMPT = `
+{context}
+-----------------
+The sentences above are sentences with the same content in two languages.
+The original text is English and other language is translation.
 
-Context include the source and translation.
-You don't need to translate as yourself.
-Your job is to fetch the source, the translation from context, and make sure it's translated correctly.
-And provide the only answer. 
-
-Here is the context from the documents:
-
-Context: {context}
-
-Here is the user's question:
-
-Question: {question}`;
+{question}
+Provide the original language sentence , other language sentence, the modified version , and explanation why you have made the correction.
+Provide the results in JOSN format like this:
+[
+  original English sentence:"",
+  original translation:"",
+  modified translation:"",
+  reason of correction:""
+]
+If you have not done a correction, please empty the modified translation and the reason of correction.`;
 
 // Creates a ConversationalRetrievalQAChain object that uses an OpenAI model and a PineconeStore vectorstore
 export const makeChain = (

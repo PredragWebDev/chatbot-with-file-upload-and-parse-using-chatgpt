@@ -18,6 +18,8 @@ import {
 import xlsx from 'xlsx';
 import axios from 'axios';
 import { getItem } from '@/libs/localStorageKeys';
+import PDFDocument from 'pdfkit';
+
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -58,6 +60,53 @@ function saveDataToXlsx(data, filename) {
   }
 }
 
+function savaDataToTXT(data, filename) {
+  let result = 'the result\n';
+  
+  // fs.writeFileSync(filename, "the result \n");
+  try {
+
+    data.forEach(((node) => {
+      result += `${node['original English sentence']}, ${node['original translation']}, ${node['modified translation']}, ${node['reason of correction']}\n`;
+    }))
+
+    fs.writeFileSync(filename, result);
+
+      return 'saved the result to text file!';
+
+    // })
+  } catch (error) {
+    return error;
+    
+  }
+}
+
+function savaDataToPDF(data, filename) {
+  try {
+    const doc = new PDFDocument();
+    
+    // Write the result header
+    doc.text("the result", { align: 'center' });
+
+    // Add each node data to the PDF
+    data.forEach((node) => {
+      doc.text(node['original English sentence']);
+      doc.text(node['original translation']);
+      doc.text(node['modified translation']);
+      doc.text(node['reason of correction']);
+      doc.moveDown();
+    });
+
+    // Save the PDF
+    doc.pipe(fs.createWriteStream(filename));
+    doc.end();
+
+    return 'Saved the result to the PDF!';
+  } catch (error) {
+    return error;
+  }
+}
+
 const getAPIkeyLimit = async (apikey) => {
   try {
     const response = await axios.get('https://api.openai.com/v1/usage', {
@@ -94,8 +143,6 @@ export default async function handler(
   const pineconeApiKey = req.headers['x-pinecone-key'];
   const pineconeEnvironment = req.headers['x-pinecone-environment'];
   const targetIndex = req.headers['x-pinecone-index-name'] as string;
-  // const filetype = req.headers['X-fileType']
-
 
   const pinecone = await initPinecone(
     pineconeApiKey as string,
@@ -231,7 +278,7 @@ export default async function handler(
     console.log('filetype of local storage>>>', filetype);
 
     const jsonData = JSON.parse(response.text);
-
+    console.log('the result >>>>', jsonData);
     switch (filetype) {
       case 'xlsx':
         result = saveDataToXlsx(jsonData, 'result.xlsx');
@@ -243,7 +290,7 @@ export default async function handler(
         result = saveDataToXlsx(jsonData, 'result.xlsx');
         break;
       case 'txt':
-        result = saveDataToXlsx(jsonData, 'result.xlsx');
+        result = savaDataToTXT(jsonData, 'result.txt');
         break;
     
       default:

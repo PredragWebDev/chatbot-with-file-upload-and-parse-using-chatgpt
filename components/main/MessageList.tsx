@@ -21,13 +21,6 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
 
   const handle_save = async (index_of_message) => {
 
-    // const input = document.createElement("input");
-    // input.type = 'file';
-    // input.accept = 'text/plain';
-    // input.click();
-
-    // const file = await fileDialog({multiple:false})
-    
     const blob = new Blob([messages[index_of_message].message], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -36,7 +29,6 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
     link.click();
     URL.revokeObjectURL(url);
     
-    // alert(messages[index_of_message].message);
   }
   return (
     <>
