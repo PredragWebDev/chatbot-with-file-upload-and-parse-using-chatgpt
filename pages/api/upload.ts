@@ -3,6 +3,11 @@ import Papa from 'papaparse';
 import { Parser } from 'json2csv';
 import csv from 'csv-parser';
 import xlsx from 'xlsx';
+import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
+import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
+import { DocxLoader } from 'langchain/document_loaders/fs/docx';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
+import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 // const createCsvWriter  = require('csv-writer').createArrayCsvWriter;
 // import createCsvWriter from 'csv-writer';
 import multiparty from 'multiparty';
@@ -56,6 +61,30 @@ export default async function handler(
 
       ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
 
+      if (ext === '.pdf' || ext === '.docx' || ext === '.txt') {
+
+        let loader, filecontent;
+        switch (ext) {
+          case '.pdf':
+            loader = new PDFLoader(uploadedFile.path);
+            filecontent = loader.load();
+            break;
+          case '.txt':
+            loader = new TextLoader(uploadedFile.path);
+            filecontent = loader.load();
+            break;
+          case '.docx':
+            loader = new DocxLoader(uploadedFile.path);
+            filecontent = loader.load();
+            break;
+          default:
+            break;
+        }
+  
+        data[`${index_of_file+1} file`] = filecontent.spite('\n');
+        index_of_file++;
+      }
+
       if (ext === '.csv') {
 
         const fileData = fs.readFileSync(uploadedFile.path, 'utf8');
@@ -91,7 +120,7 @@ export default async function handler(
       }
     }
 
-    if (ext === '.csv' || ext === '.xlsx') {
+    // if (ext === '.csv' || ext === '.xlsx') {
 
       const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
       let rows = Array(maxLen).fill().map(() => ({}));
@@ -106,7 +135,7 @@ export default async function handler(
       const csvfile = json2csvParser.parse(rows);
   
       fs.writeFileSync('combined.csv', csvfile, 'utf8');
-    }
+    // }
 
     //______________combine end__________________////
 
