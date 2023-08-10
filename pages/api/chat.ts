@@ -261,7 +261,6 @@ export default async function handler(
     // create new file for the result.
 
     let responseResult = [];
-    let count_of_error = 0;
 
     for (let i = 0; i < myDocs.length; i++) {
 
@@ -270,8 +269,6 @@ export default async function handler(
 
         const chain = new LLMChain({llm:model, prompt:prompt});
   
-        // console.log('doc>>>', doc[0]['pageContent']);
-
         const temp = doc[0]['pageContent'].replace(`"`, "'");
   
         console.log("temp>>>>", temp);
@@ -290,14 +287,6 @@ export default async function handler(
       }
       catch (error) {
 
-        // count_of_error ++;
-        // if (count_of_error === 3) {
-        //   count_of_error = 0
-        // }
-        // else {
-
-        //   i --;
-        // }
         console.log(error.state);
       }
       
@@ -305,37 +294,11 @@ export default async function handler(
 
     const limit = await getAPIkeyLimit(openAIapiKey);
     console.log('api key limit>>>', limit);
-    // result = saveDataToXlsx(responseResult, 'result.xlsx');
 
     console.log('result>>>>', result);
 
-
-
-    // let chat_history = [];
-    // const chain = makeChain(
-    //   vectorStore,
-    //   returnSourceDocuments,
-    //   modelTemperature,
-    //   openAIapiKey as string,
-    // );
-
-    // for (let i = 0; i < 2 ; i ++) {
-      
-    //   const response = await chain.call({
-    //     question: sanitizedQuestion,
-    //     chat_history: chat_history || [],
-    //   });
-  
-    //   console.log('result response.text>>>>', response.text);
-    //   const jsonData = JSON.parse(response.text);
-    //   chat_history = [...chat_history, ...jsonData]
-    // }
-
-
     console.log('filetype of local storage>>>', filetype);
-
     
-    // console.log('the result >>>>', chat_history);
     switch (filetype) {
       case 'xlsx':
         result = saveDataToXlsx(responseResult, 'result.xlsx');
