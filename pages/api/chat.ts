@@ -21,9 +21,10 @@ import { getItem } from '@/libs/localStorageKeys';
 import PDFDocument from 'pdfkit';
 import JSzip, { files } from 'jszip';
 import process from 'process';
-import Docxtemplater, { Document } from 'docxtemplater';
+// import Docxtemplater, { Document } from 'docxtemplater';
 import PizZip from 'pizzip';
 import jsonexport from 'jsonexport';
+import { Document, Packer, Table, TableRow, TableCell, Paragraph, TextRun } from 'docx';
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -113,31 +114,53 @@ function savaDataToPDF(data, filename) {
   }
 }
 
-function saveDataToDocx(data, filename) {
+function saveDataToDocx(data: any, filename: string) {
   try {
-    jsonexport(data, (error, csvData) => {
-      if (error) throw error;
+      const doc = new Document();
 
-      const content = fs.readFileSync('./template.docx', 'binary');
-      const zip = new PizZip(content);
-      const doc = new Docxtemplater().loadZip(zip);
+      // Create a table header
+      const header = new TableRow({
+          children: Object.keys(data[0]).map(key => {
+              return new TableCell({
+                  children: [new Paragraph(key)],
+                  shading: {
+                      fill: "d9d9d9", // gray background for header
+                      val: "clear",
+                      color: "auto"
+                  }
+              });
+          })
+      });
 
-      const tabledata = {table:csvData};
+      // Convert JSON data to table rows
+      const rows = data.map(item => {
+          return new TableRow({
+              children: Object.values(item).map(value => {
+                  return new TableCell({
+                      children: [new Paragraph(value.toString())]
+                  });
+              })
+          });
+      });
 
-      // set the data (this will replace all placeholders in the template)
-      doc.setData(tabledata);;
+      const table = new Table({
+          rows: [header, ...rows]
+      });
 
-      // apply the data and render the document
-      doc.render();
+      doc.addSection({
+          children: [table]
+      });
 
-      const buffer = doc.getZip().generate({type: 'nodebuffer'});
+      // Convert document to buffer
+      const buffer = Packer.toBuffer(doc);
 
-      fs.writeFileSync(filename, buffer);
+      // In the context of a Next.js API route, you'd send this buffer as a response
+      // In this example, we'll simply write it to the filesystem for the sake of demonstration
+      require('fs').writeFileSync(filename, buffer);
 
       return 'Saved the result to the DOCX!';
-    })
   } catch (error) {
-      console.log("error>>>", error);
+      console.log("Error:", error);
       return error;
   }
 }

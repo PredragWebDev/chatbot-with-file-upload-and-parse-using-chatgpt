@@ -279,6 +279,10 @@ export default function Home() {
     // messageListRef.current?.scrollIntoView({ behavior: "smooth", block: 'end', inline: 'nearest'});
   }
 
+  const getprogress = () => {
+    console.log("bannaemi");
+  }
+
   const handleEnter = (e: any) => {
     if (e.key === 'Enter' && query) {
       handleSubmit(e);
