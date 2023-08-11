@@ -95,8 +95,6 @@ export default async function handler(
     let index_of_file = 0;
     const uploadedFiles: string[] = [];
 
-    
-
     /// combine uploaded files to one csv
     let data = {};
     for (const file of Object.values(files) as UploadedFile[][]) {

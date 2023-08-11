@@ -1,6 +1,9 @@
 import { initPinecone } from '@/utils/pinecone-client';
 
 import { NextApiRequest, NextApiResponse } from 'next';
+import process from 'process';
+// import fs from 'fs';
+import fs from 'fs-extra';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,6 +13,15 @@ export default async function handler(
     namespace: string;
   };
 
+  // delete local namespace
+  const currentPath = process.cwd() + '\\namespace\\' + namespace;
+
+  if (fs.existsSync(currentPath)) {
+    await fs.remove(currentPath);
+  }
+
+  ///
+  
   const pineconeApiKey = req.headers['x-api-key'];
   const targetIndex = req.headers['x-index-name'] as string;
   const pineconeEnvironment = req.headers['x-environment'];

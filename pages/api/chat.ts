@@ -19,11 +19,11 @@ import xlsx from 'xlsx';
 import axios from 'axios';
 import { getItem } from '@/libs/localStorageKeys';
 import PDFDocument from 'pdfkit';
-import Docxtemplater from 'docxtemplater';
 import JSzip, { files } from 'jszip';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
 import process from 'process';
-import { error } from 'console';
+import Docxtemplater, { Document } from 'docxtemplater';
+import PizZip from 'pizzip';
+import jsonexport from 'jsonexport';
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -115,41 +115,30 @@ function savaDataToPDF(data, filename) {
 
 function saveDataToDocx(data, filename) {
   try {
-    const doc = new Document();
+    jsonexport(data, (error, csvData) => {
+      if (error) throw error;
 
-    // Write the result header
-    doc.addSection({
-      children: [
-        new Paragraph({
-          alignment: 'CENTER',
-          children: [
-            new TextRun("The Result")
-          ],
-        })
-      ]
-    });
+      const content = fs.readFileSync('./template.docx', 'binary');
+      const zip = new PizZip(content);
+      const doc = new Docxtemplater().loadZip(zip);
 
-    // Add each node data to the DOCX
-    data.forEach((node) => {
-      doc.addSection({
-        children: [
-          new Paragraph(node['original English sentence']),
-          new Paragraph(node['original translation']),
-          new Paragraph(node['modified translation']),
-          new Paragraph(node['reason of correction']),
-          new Paragraph(''), // for space between entries
-        ],
-      });
-    });
+      const tabledata = {table:csvData};
 
-    // Save the DOCX
-    Packer.toBuffer(doc).then((buffer) => {
+      // set the data (this will replace all placeholders in the template)
+      doc.setData(tabledata);;
+
+      // apply the data and render the document
+      doc.render();
+
+      const buffer = doc.getZip().generate({type: 'nodebuffer'});
+
       fs.writeFileSync(filename, buffer);
-    });
 
-    return 'Saved the result to the DOCX!';
+      return 'Saved the result to the DOCX!';
+    })
   } catch (error) {
-    return error;
+      console.log("error>>>", error);
+      return error;
   }
 }
 
