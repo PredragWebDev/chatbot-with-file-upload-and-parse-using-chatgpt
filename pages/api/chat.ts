@@ -20,9 +20,10 @@ import axios from 'axios';
 import { getItem } from '@/libs/localStorageKeys';
 import PDFDocument from 'pdfkit';
 import Docxtemplater from 'docxtemplater';
-import JSzip from 'jszip';
+import JSzip, { files } from 'jszip';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
-
+import process from 'process';
+import { error } from 'console';
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -254,76 +255,88 @@ export default async function handler(
       },
     );
 
-    const docs = fs.readFileSync('my docs.txt').toString();
+    let currentPath = process.cwd() + '\\namespace\\' + selectedNamespace;
 
-    const myDocs = JSON.parse(docs);
-
-    // create new file for the result.
-
-    let responseResult = [];
-
-    for (let i = 0; i < myDocs.length; i++) {
-
-      try {
-        const doc = [myDocs[i]];
-
-        const chain = new LLMChain({llm:model, prompt:prompt});
-  
-        const temp = doc[0]['pageContent'].replace(`"`, "'");
-  
-        console.log("temp>>>>", temp);
-        console.log('getting response...');
-  
-        const response = await chain.call({
-          context:temp,
-          question:sanitizedQuestion
-        })
-  
-        console.log('response>>>>', response.text);
-  
-        const jsonData = JSON.parse(response.text);
-  
-        responseResult = [...responseResult, ...jsonData]
+    fs.readdir(currentPath, async (error, files) => {
+      if (error) {
+        console.error('Error reading directory:', error);
+        return;
       }
-      catch (error) {
+      for (const file of files) {
+        const docs = fs.readFileSync(currentPath + '\\' + file).toString();
+        const myDocs = JSON.parse(docs);
 
-        console.log(error.state);
-      }
+        let responseResult = [];
+
+        for (let i = 0; i < myDocs.length; i++) {
+
+          try {
+            const doc = [myDocs[i]];
+
+            const chain = new LLMChain({llm:model, prompt:prompt});
       
-    }
+            const temp = doc[0]['pageContent'].replace(`"`, "'");
+      
+            console.log("temp>>>>", temp);
+            console.log('getting response...');
+      
+            const response = await chain.call({
+              context:temp,
+              question:sanitizedQuestion
+            })
+      
+            console.log('response>>>>', response.text);
+      
+            const jsonData = JSON.parse(response.text);
+      
+            responseResult = [...responseResult, ...jsonData]
+          }
+          catch (error) {
 
-    const limit = await getAPIkeyLimit(openAIapiKey);
-    console.log('api key limit>>>', limit);
+            console.log(error);
+            // console.log(error.state);
+          }
+          
+        }
 
-    console.log('result>>>>', result);
+        const resultPath = process.cwd() + '\\result';
 
-    console.log('filetype of local storage>>>', filetype);
-    
-    switch (filetype) {
-      case 'xlsx':
-        result = saveDataToXlsx(responseResult, 'result.xlsx');
-        break;
-      case 'pdf':
+        if (!fs.existsSync(resultPath)) {
+          fs.mkdirSync(resultPath);
+        }
         
-        result = savaDataToPDF(responseResult, 'result.pdf');
-        break;
-      case 'docx':
-        console.log('docx saving');
-        result = saveDataToDocx(responseResult, 'result.docx');
-        break;
-      case 'txt':
-        result = savaDataToTXT(responseResult, 'result.txt');
-        break;
+        switch (filetype) {
+          case 'xlsx':
+            console.log("save as xlsx");
+            result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+            break;
+          case 'pdf':
+            console.log("save as pdf");
+
+            result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
+            break;
+          case 'docx':
+            console.log("save as docx");
+
+            result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
+            break;
+          case 'txt':
+            console.log("save as txt");
+
+            result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+            break;
+          default:
+            result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+            break;
+        }
+
+      }
+      res
+        .status(200)
+        // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
+        .json({ text: result, sourceDocuments: response_Source_doc });
+    })
     
-      default:
-        result = saveDataToXlsx(responseResult, 'result.xlsx');
-        break;
-    }
-    
-    res
-      .status(200)
-      // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
-      .json({ text: result, sourceDocuments: response_Source_doc });
   } catch (error: any) {
     console.log('error', error);
     res.status(500).json({ error: error.message || 'Something went wrong' });

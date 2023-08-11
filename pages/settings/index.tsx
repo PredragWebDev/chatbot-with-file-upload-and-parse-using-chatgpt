@@ -52,7 +52,8 @@ export default function Settings() {
   const [showChunkSizeModal, setShowChunkSizeModal] = useState<boolean>(false);
   const [showOverlapSizeModal, setShowOverlapSizeModal] =
     useState<boolean>(false);
-    const [isToggled, setIsToggled] = useState(false);
+  const [isToggled, setIsToggled] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('complex');
   const router = useRouter();
 
   const fetchNamespaces = async (openAIapiKey: string, pineconeApiKey: string, pineconeEnvironment: string, pineconeIndexName: str) => {
@@ -199,7 +200,7 @@ export default function Settings() {
       formData.append(`myfile${i}`, selectedFiles[i]);
     }
 
-    formData.append('isToggle', isToggled);
+    formData.append('inputMethod', selectedValue);
     try {
       setUploadMessage('Uploading...');
       setUploadStatus(false);
@@ -496,11 +497,21 @@ export default function Settings() {
               </label>
             </div>
             {/* upload area */}
-            <div className="mt-4 sm:mt-8 flex justify-end">
-              <button className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 mr-2"
+            <div className="mt-4 sm:mt-8 flex justify-between">
+              {/* <button className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 mr-2"
                 onClick={() => setIsToggled(!isToggled)}>
                 {isToggled ? 'complex' : 'separate'}
-              </button>
+              </button> */}
+              <label className='text-white'>
+                <input type="radio" className='mr-2' value="complex" checked={selectedValue === 'complex'} onChange={(e) => {setSelectedValue(e.target.value)}} />
+                Complex
+              </label>
+
+              <label className='text-white'
+              >
+                <input type="radio" className='mr-2' value="separate" checked={selectedValue === 'separate'} onChange={(e) => {setSelectedValue(e.target.value)}} />
+                Separate
+              </label>
               <button
                 className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 onClick={handleUpload}

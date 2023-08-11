@@ -7,10 +7,11 @@ import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
+import fs, { mkdir } from 'fs';
 import { initPinecone } from '@/utils/pinecone-client';
-
+import process from 'process';
 import { LocalStorage } from "node-localstorage";
+import { error } from 'console';
 global.localStorage = new LocalStorage('./docs');
 
 const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
@@ -36,31 +37,66 @@ export default async function handler(
 
   const { namespaceName, chunkSize, overlapSize } = req.query;
 
+  let currentPath = process.cwd();
+  console.log('current path>>>', currentPath);
+  currentPath += '\\namespace';
+
+  if (!fs.existsSync(currentPath)) {
+
+    fs.mkdirSync(currentPath);
+  }
+  currentPath += '\\' + namespaceName;
+
+  if (!fs.existsSync(currentPath)) {
+
+    fs.mkdirSync(currentPath);
+  }
+  
   try {
-    // Load PDF, DOCS, TXT, CSV files from the specified directory
-    const directoryLoader = new DirectoryLoader(filePath, {
-      '.pdf': (path) => new PDFLoader(path),
-      '.docx': (path) => new DocxLoader(path),
-      '.txt': (path) => new TextLoader(path),
-      '.csv': (path) => new CSVLoader(path),
-    });
 
-    const rawDocs = await directoryLoader.load();
+    fs.readdir(filePath, async (error, uploadedFiles) => {
+      if (error) {
+        console.error('Error reading directory:', error);
+        return;
+      }
 
+      console.log('uploaded files>>>', uploadedFiles);
+
+      for (const file of uploadedFiles) {
+        // Load PDF, DOCS, TXT, CSV files from the specified directory
+        const directoryLoader = new TextLoader(filePath + "\\" + file);
+        const filecontent = await directoryLoader.load();
+        const docs = await textSplitter.splitDocuments(filecontent);
+
+        fs.writeFileSync(currentPath + '\\' + file, JSON.stringify(docs));
+
+        await PineconeStore.fromDocuments(docs, embeddings, {
+          pineconeIndex: index,
+          namespace: namespaceName as string,
+          textKey: 'text',
+        });
+        
+      }
+      // Delete the PDF, DOCX, TXT, CSV files
+      
+      const filesToDelete = fs
+        .readdirSync(filePath)
+        .filter(
+          (file) =>
+            file.endsWith('.pdf') ||
+            file.endsWith('.docx') ||
+            file.endsWith('.txt') ||
+            file.endsWith('.csv'),
+        );
+      filesToDelete.forEach((file) => {
+        fs.unlinkSync(`${filePath}/${file}`);
+      });
+    })
     // Split the PDF documents into smaller chunks
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: Number(chunkSize),
       chunkOverlap: Number(overlapSize),
     });
-
-    const docs = await textSplitter.splitDocuments(rawDocs);
-
-    console.log('docs>>>', docs);
-    console.log('docs length>>', docs.length);
-
-    // save docs to local storage.
-
-    fs.writeFileSync('my docs.txt', JSON.stringify(docs));
 
     // OpenAI embeddings for the document chunks
     const embeddings = new OpenAIEmbeddings({
@@ -71,26 +107,6 @@ export default async function handler(
     const index = pinecone.Index(targetIndex);
 
     // Store the document chunks in Pinecone with their embeddings
-
-    await PineconeStore.fromDocuments(docs, embeddings, {
-      pineconeIndex: index,
-      namespace: namespaceName as string,
-      textKey: 'text',
-    });
-
-    // Delete the PDF, DOCX, TXT, CSV files
-    const filesToDelete = fs
-      .readdirSync(filePath)
-      .filter(
-        (file) =>
-          file.endsWith('.pdf') ||
-          file.endsWith('.docx') ||
-          file.endsWith('.txt') ||
-          file.endsWith('.csv'),
-      );
-    filesToDelete.forEach((file) => {
-      fs.unlinkSync(`${filePath}/${file}`);
-    });
 
     res.status(200).json({ message: 'Data ingestion complete' });
   } catch (error) {

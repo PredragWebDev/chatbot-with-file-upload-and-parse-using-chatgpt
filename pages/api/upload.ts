@@ -90,7 +90,7 @@ export default async function handler(
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    console.log("body>>>", fields.isToggle[0]);
+    console.log("body>>>", fields.inputMethod[0]);
 
     let index_of_file = 0;
     const uploadedFiles: string[] = [];
@@ -107,32 +107,6 @@ export default async function handler(
       const uploadedFile = file[0] as UploadedFile;
 
       ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
-
-      if (ext === '.pdf' || ext === '.docx' || ext === '.txt') {
-
-        let loader, filecontent;
-        switch (ext) {
-          case '.pdf':
-            const fileBytes = fs.readFileSync(uploadedFile.path);
-            const pdfDoc = await pdf(fileBytes);
-            filecontent += pdfDoc.text;
-            break;
-          case '.txt':
-            console.log('filepath>>>', uploadedFile.path);
-            filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
-            break;
-          case '.docx':
-            filecontent = await readDocxFile(uploadedFile.path);
-            break;
-          default:
-            break;
-        }
-  
-        console.log("filecontent", filecontent);
-
-        data[`${index_of_file+1} file`] = filecontent.split('\n');
-        index_of_file++;
-      }
 
       if (ext === '.csv') {
 
@@ -158,9 +132,7 @@ export default async function handler(
         data[`${index_of_file+1} file`] = columnData;
         
         index_of_file ++;
-      }
-
-      if (ext === '.xlsx') {
+      } else if (ext === '.xlsx') {
         const workbook = xlsx.readFile(uploadedFile.path);
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
@@ -183,7 +155,33 @@ export default async function handler(
         data[`${index_of_file + 1} file`] = columnData;
       
         index_of_file++;
+      } else {
+
+        let loader, filecontent;
+        switch (ext) {
+          case '.pdf':
+            const fileBytes = fs.readFileSync(uploadedFile.path);
+            const pdfDoc = await pdf(fileBytes);
+            filecontent += pdfDoc.text;
+            break;
+          case '.txt':
+            filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
+            break;
+          case '.docx':
+            filecontent = await readDocxFile(uploadedFile.path);
+            break;
+          default:
+            filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
+            break;
+        }
+  
+        console.log("filecontent", filecontent);
+
+        data[`${index_of_file+1} file`] = filecontent.split('\n');
+        index_of_file++;
       }
+
+
     }
 
     const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
@@ -201,8 +199,8 @@ export default async function handler(
     fs.writeFileSync('combined.csv', csvfile, 'utf8');
 
     //______________combine end__________________////
-    
-    if (fields.isToggle[0] === 'false') { // if separate   
+
+    if (fields.inputMethod[0] === 'separate') { // if separate   
 
       for (const file of Object.values(files) as UploadedFile[][]) {
         if (!file || file.length === 0) {
