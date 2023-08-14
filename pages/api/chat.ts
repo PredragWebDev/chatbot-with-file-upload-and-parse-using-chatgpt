@@ -25,7 +25,9 @@ import process from 'process';
 import PizZip from 'pizzip';
 import jsonexport from 'jsonexport';
 import { jsPDF } from "jspdf";
-import { Document, Packer, Table, TableRow, TableCell, Paragraph, TextRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Heart } from 'lucide-react';
+import 'jspdf-autotable';
 // import { progressRate } from './global_variable';
 
 let progressRate;
@@ -66,6 +68,7 @@ function saveDataToXlsx(data, filename) {
     return 'saved the result to XLSX file!';
   }
   catch (error) {
+    console.log('error>>', error);
     return error;
   }
 }
@@ -86,6 +89,7 @@ function savaDataToTXT(data, filename) {
 
     // })
   } catch (error) {
+    console.log('error>>', error);
     return error;
     
   }
@@ -103,20 +107,45 @@ function savaDataToPDF(data, filename) {
     doc.setFont('customFont');
 
     console.log('pass encoding!');
-    // Write the result header
-    doc.text("the result", { align: 'center' });
 
+    const pageWidth = doc.internal.pageSize.width;
+    const textWidth = doc.getStringUnitWidth("the result") * doc.internal.getFontSize();
+    const x = (pageWidth - textWidth) / 2;
+    const y = 20; // Adjust the y-coordinate as needed
+
+    doc.text("the result", x, y);
+    // Write the result header
+
+    const headers = [['original English sentences', 'original translation', 'modified translation', 'reason of correction']];
+
+
+    console.log('okay?');
+
+    let index = 0;
+    let intervalY = doc.internal.getFontSize() + 5;
     // Add each node data to the PDF
+
+    let rows = [];
     data.forEach((node) => {
       console.log(node['original translation']);
+      rows.push([node['original English sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
 
-      doc.text(`${node['original English sentence']}, `);
-      doc.text(`${node['original translation']}, `);
-      doc.text(`${node['modified translation']}, `);
-      doc.text(`${node['reason of correction']}`);
-      doc.moveDown();
+      // doc.text(`${node['original English sentence']}, `, 10, index * intervalY);
+      // doc.text(`${node['original translation']}, `, 10 + doc.getStringUnitWidth(node['original English sentence']) * doc.internal.getFontSize(), 40+index * intervalY);
+      // doc.text(`${node['modified translation']}, `, 10 + doc.getStringUnitWidth(node['original translation']) * doc.internal.getFontSize(), 40+index * intervalY);
+      // doc.text(`${node['reason of correction']} \n`, 10 + doc.getStringUnitWidth(node['modified translation']) * doc.internal.getFontSize(), 40+index * intervalY);
+
+      // index ++;
+      // doc.moveDown();
     });
 
+    doc.autoTable({
+      styles: {
+        font:'customFont'
+      },
+      head:headers,
+      body:rows
+    })
     // Save the PDF
     // doc.pipe(fs.createWriteStream(filename));
     // doc.end();
@@ -125,53 +154,39 @@ function savaDataToPDF(data, filename) {
 
     return 'Saved the result to the PDF!';
   } catch (error) {
+    console.log('error>>>>>>', error);
     return error;
   }
 }
 
 function saveDataToDocx(data: any, filename: string) {
   try {
-      const doc = new Document();
+    const doc = new Document({
+      sections: [
+          {
+              properties: {},
+              children: [
+                  new Paragraph({
+                      children: [
+                          new TextRun("Hello World"),
+                          new TextRun({
+                              text: "Foo Bar",
+                              bold: true,
+                          }),
+                          new TextRun({
+                              text: "\tGithub is the best",
+                              bold: true,
+                          }),
+                      ],
+                  }),
+              ],
+          },
+      ],
+    });
 
-      // Create a table header
-      const header = new TableRow({
-          children: Object.keys(data[0]).map(key => {
-              return new TableCell({
-                  children: [new Paragraph(key)],
-                  shading: {
-                      fill: "d9d9d9", // gray background for header
-                      val: "clear",
-                      color: "auto"
-                  }
-              });
-          })
-      });
-
-      // Convert JSON data to table rows
-      const rows = data.map(item => {
-          return new TableRow({
-              children: Object.values(item).map(value => {
-                  return new TableCell({
-                      children: [new Paragraph(value.toString())]
-                  });
-              })
-          });
-      });
-
-      const table = new Table({
-          rows: [header, ...rows]
-      });
-
-      doc.addSection({
-          children: [table]
-      });
-
-      // Convert document to buffer
-      const buffer = Packer.toBuffer(doc);
-
-      // In the context of a Next.js API route, you'd send this buffer as a response
-      // In this example, we'll simply write it to the filesystem for the sake of demonstration
-      require('fs').writeFileSync(filename, buffer);
+    Packer.toBuffer(doc).then((buffer) => {
+      fs.writeFileSync("My Document.docx", buffer);
+    });
 
       return 'Saved the result to the DOCX!';
   } catch (error) {

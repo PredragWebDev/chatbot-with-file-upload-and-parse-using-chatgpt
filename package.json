@@ -37,6 +37,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "jsonexport": "^3.2.0",
     "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.31",
     "jszip": "^3.10.1",
     "langchain": "0.0.82",
     "lodash": "^4.17.21",
