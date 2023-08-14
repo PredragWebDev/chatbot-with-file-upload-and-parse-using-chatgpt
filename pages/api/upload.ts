@@ -119,10 +119,18 @@ export default async function handler(
   
         const columnData = results.data.map((row: { [x: string]: any; }) => {
           let tempResult = "";
-          // console.log('row>>>', row[0]);
+          console.log('row>>>', row[0]);
+          console.log('row>>>', row.length);
+
+          
           for (let i = 0 ; i < row.length; i ++) {
 
-            tempResult += row[i] + ', '
+            if (row.length === 1) {
+              tempResult += row[i];
+            } else {
+
+              tempResult += row[i] + ', '
+            }
           }
           return tempResult;
         })
@@ -143,9 +151,16 @@ export default async function handler(
         const columnData = jsonData.map((row) => {
           let tempResult = "";
           // console.log('row>>>', row[0]);
+          // console.log('row>>>', row.length);
+
           for (let i = 0 ; i < row.length; i ++) {
 
-            tempResult += row[i] + ', '
+            if (row.length === 1) {
+              tempResult += row[i];
+            } else {
+
+              tempResult += row[i] + ', '
+            }
           }
           return tempResult;
         });
@@ -178,7 +193,6 @@ export default async function handler(
         data[`${index_of_file+1} file`] = filecontent.split('\n');
         index_of_file++;
       }
-
 
     }
 

@@ -4,6 +4,8 @@ import {
   PaperAirplaneIcon,
 } from '@heroicons/react/24/solid';
 import fs from 'fs';
+import NProgress from 'nprogress';
+import NextNProgress from 'nextjs-progressbar';
 
 type ChatFormProps = {
   loading: boolean;
@@ -109,6 +111,7 @@ const ChatForm = ({
           <></>
         ) : error ? (
           <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
+
         ) : (
           <PaperAirplaneIcon className="h-6 w-6" />
         )}

@@ -10,6 +10,10 @@ import {
 import remarkGfm from 'remark-gfm';
 import { Message } from '@/types';
 import fileDialog from 'file-dialog';
+import NextNProgress from 'nextjs-progressbar';
+import nProgress from 'nprogress';
+import ProgressBar from "@ramonak/react-progress-bar";
+import ReactLoading from "react-loading";
 
 interface MessageListProps {
   messages: Message[];
@@ -17,7 +21,7 @@ interface MessageListProps {
   messageListRef: React.RefObject<HTMLDivElement>;
 }
 
-function MessageList({ messages, loading, messageListRef }: MessageListProps) {
+function MessageList({ messages, loading, progressRate, messageListRef }: MessageListProps) {
 
   const handle_save = async (index_of_message) => {
 
@@ -123,8 +127,11 @@ function MessageList({ messages, loading, messageListRef }: MessageListProps) {
       </div>
       {loading && (
         <div className="flex items-center justify-center h-32 w-full bg-gray-700/50">
-          <div className="flex-shrink-0 p-1">
-            <LoadingDots color="#04d9ff" />
+          <div className="flex items-center justify-center max-w-full sm:max-w-4xl overflow-hidden px-2 sm:px-4 w-full">
+            <ReactLoading type='bars' color="grey"/>
+            {/* <LoadingDots color="#04d9ff" /> */}
+            {/* <ProgressBar className='w-full' completed={progressRate} /> */}
+
           </div>
         </div>
       )}

@@ -24,7 +24,12 @@ import process from 'process';
 // import Docxtemplater, { Document } from 'docxtemplater';
 import PizZip from 'pizzip';
 import jsonexport from 'jsonexport';
+import { jsPDF } from "jspdf";
 import { Document, Packer, Table, TableRow, TableCell, Paragraph, TextRun } from 'docx';
+// import { progressRate } from './global_variable';
+
+let progressRate;
+
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
@@ -88,8 +93,16 @@ function savaDataToTXT(data, filename) {
 
 function savaDataToPDF(data, filename) {
   try {
-    const doc = new PDFDocument();
+    // const doc = new PDFDocument();
+    const doc = new jsPDF();
     
+    const fontFilePath = process.cwd() + '\\font\\';
+
+    doc.addFont(fontFilePath + 'OpenSans-Regular.ttf', 'customFont', 'normal');
+
+    doc.setFont('customFont');
+
+    console.log('pass encoding!');
     // Write the result header
     doc.text("the result", { align: 'center' });
 
@@ -97,16 +110,18 @@ function savaDataToPDF(data, filename) {
     data.forEach((node) => {
       console.log(node['original translation']);
 
-      doc.text(`${node['original English sentence']}`);
-      doc.text(`${node['original translation']}`);
-      doc.text(node['modified translation']);
-      doc.text(node['reason of correction']);
+      doc.text(`${node['original English sentence']}, `);
+      doc.text(`${node['original translation']}, `);
+      doc.text(`${node['modified translation']}, `);
+      doc.text(`${node['reason of correction']}`);
       doc.moveDown();
     });
 
     // Save the PDF
-    doc.pipe(fs.createWriteStream(filename));
-    doc.end();
+    // doc.pipe(fs.createWriteStream(filename));
+    // doc.end();
+
+    doc.save(filename)
 
     return 'Saved the result to the PDF!';
   } catch (error) {
@@ -237,9 +252,10 @@ export default async function handler(
       `{context}
       -----------------
       The sentences above are sentences with the same content in two languages.
-      The original text is English and other language is translation.
+      English sentences are original text and other language is translation.
 
       {question}
+      
       Provide the original language sentence , other language sentence, the modified version , and explanation why you have made the correction.
       Provide the results in JOSN format like this:
       [
@@ -269,6 +285,8 @@ export default async function handler(
 
     let currentPath = process.cwd() + '\\namespace\\' + selectedNamespace;
 
+    let progress_count = 0;
+
     fs.readdir(currentPath, async (error, files) => {
       if (error) {
         console.error('Error reading directory:', error);
@@ -286,10 +304,10 @@ export default async function handler(
             const doc = [myDocs[i]];
 
             const chain = new LLMChain({llm:model, prompt:prompt});
+            console.log("temp>>>>", doc[0]['pageContent']);
       
-            const temp = doc[0]['pageContent'].replace(`"`, "'");
+            const temp = doc[0]['pageContent'].replace(/"/g, "'");
       
-            console.log("temp>>>>", temp);
             console.log('getting response...');
       
             const response = await chain.call({
@@ -297,15 +315,24 @@ export default async function handler(
               question:sanitizedQuestion
             })
       
+            progress_count ++;
+
+            progressRate = progress_count/ (myDocs.length * files.length) * 100;
+
             console.log('response>>>>', response.text);
       
             const jsonData = JSON.parse(response.text);
+
+            console.log('parse okay?');
       
             responseResult = [...responseResult, ...jsonData]
+
+            console.log('error is here?');
           }
           catch (error) {
 
-            console.log(error);
+            console.log('error>>>>', error);
+            break;
             // console.log(error.state);
           }
           
@@ -354,3 +381,7 @@ export default async function handler(
     res.status(500).json({ error: error.message || 'Something went wrong' });
   }
 };
+
+export async function progress_rate () {
+  return progressRate;
+}

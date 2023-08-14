@@ -1,0 +1,1 @@
+Check that all English sentences are correctly translated into other languages. Your work is to check for the following: Double spaces, inconsistencies in the translation, numeric mismatches, tag mismatches, punctuation marks, please also do a spelling check.

@@ -66,6 +66,10 @@ export default async function handler(
         // Load PDF, DOCS, TXT, CSV files from the specified directory
         const directoryLoader = new TextLoader(filePath + "\\" + file);
         const filecontent = await directoryLoader.load();
+        console.log('filecontent>>>>', filecontent);
+
+        // const modifiedFileContent = filecontent.replace('"', "'");
+
         const docs = await textSplitter.splitDocuments(filecontent);
 
         fs.writeFileSync(currentPath + '\\' + file, JSON.stringify(docs));

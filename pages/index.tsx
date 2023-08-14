@@ -239,7 +239,6 @@ export default function Home() {
         filetype
       }),
     });
-
     const data = await response.json();
 
     if (data.error) {
@@ -277,10 +276,6 @@ export default function Home() {
 
     setLoading(false);
     // messageListRef.current?.scrollIntoView({ behavior: "smooth", block: 'end', inline: 'nearest'});
-  }
-
-  const getprogress = () => {
-    console.log("bannaemi");
   }
 
   const handleEnter = (e: any) => {
