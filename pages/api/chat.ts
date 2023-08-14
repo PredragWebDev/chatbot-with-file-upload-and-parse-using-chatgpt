@@ -1,4 +1,3 @@
-import { TextareaProps } from './../../components/other/TextArea';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Cors from 'cors';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
@@ -9,7 +8,6 @@ import fs from 'fs';
 import { PromptTemplate } from 'langchain/prompts';
 import { OpenAI } from 'langchain/llms/openai';
 import { LLMChain } from "langchain/chains";
-import { ChatOpenAI } from "langchain/chat_models/openai";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -118,14 +116,7 @@ function savaDataToPDF(data, filename) {
     let rows = [];
     data.forEach((node) => {
       rows.push([node['original English sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
-
-      // doc.text(`${node['original English sentence']}, `, 10, index * intervalY);
-      // doc.text(`${node['original translation']}, `, 10 + doc.getStringUnitWidth(node['original English sentence']) * doc.internal.getFontSize(), 40+index * intervalY);
-      // doc.text(`${node['modified translation']}, `, 10 + doc.getStringUnitWidth(node['original translation']) * doc.internal.getFontSize(), 40+index * intervalY);
-      // doc.text(`${node['reason of correction']} \n`, 10 + doc.getStringUnitWidth(node['modified translation']) * doc.internal.getFontSize(), 40+index * intervalY);
-
-      // index ++;
-      // doc.moveDown();
+    
     });
 
     doc.autoTable({
@@ -135,9 +126,6 @@ function savaDataToPDF(data, filename) {
       head:headers,
       body:rows
     })
-    // Save the PDF
-    // doc.pipe(fs.createWriteStream(filename));
-    // doc.end();
 
     doc.save(filename)
 
@@ -289,7 +277,6 @@ export default async function handler(
       
       {question}
       
-      
       Provide the results in JOSN format like this:
       [
         original English sentence:"",
@@ -413,7 +400,3 @@ export default async function handler(
     res.status(500).json({ error: error.message || 'Something went wrong' });
   }
 };
-
-export async function progress_rate () {
-  return progressRate;
-}
