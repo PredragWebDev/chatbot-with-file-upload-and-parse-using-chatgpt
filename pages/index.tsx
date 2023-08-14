@@ -216,6 +216,7 @@ export default function Home() {
     }
 
     const filetype = getItem('filetype');
+    const isResume = getItem('ischecked');
     
     console.log('file type in index.>>>>', filetype);
 
@@ -236,7 +237,8 @@ export default function Home() {
         selectedNamespace,
         returnSourceDocuments,
         modelTemperature,
-        filetype
+        filetype, 
+        isResume
       }),
     });
     const data = await response.json();
@@ -274,34 +276,66 @@ export default function Home() {
         return updatedConversation;
       });
     } else {
-      setConversation((prevConversation) => {
-        const updatedConversation = {
-          ...prevConversation,
-          messages: [
-            ...prevConversation.messages,
-            {
-              type: 'apiMessage',
-              message: data.text,
-              sourceDocs: data.sourceDocuments
-                ? data.sourceDocuments.map(
-                    (doc: any) =>
-                      new Document({
-                        pageContent: doc.pageContent,
-                        metadata: { source: doc.metadata.source },
-                      }),
-                  )
-                : undefined,
-            } as ConversationMessage,
-          ],
-          history: [
-            ...prevConversation.history,
-            [question, data.text] as [string, string],
-          ],
-        };
+      if (data.isBreak) {
 
-        updateConversation(selectedChatId, updatedConversation);
-        return updatedConversation;
-      });
+        setConversation((prevConversation) => {
+          const updatedConversation = {
+            ...prevConversation,
+            messages: [
+              ...prevConversation.messages,
+              {
+                type: 'apiMessage',
+                message: data.text + 'You requested too many times. You can resume later.',
+                sourceDocs: data.sourceDocuments
+                  ? data.sourceDocuments.map(
+                      (doc: any) =>
+                        new Document({
+                          pageContent: doc.pageContent,
+                          metadata: { source: doc.metadata.source },
+                        }),
+                    )
+                  : undefined,
+              } as ConversationMessage,
+            ],
+            history: [
+              ...prevConversation.history,
+              [question, data.text] as [string, string],
+            ],
+          };
+          updateConversation(selectedChatId, updatedConversation);
+          return updatedConversation;
+        });
+      } else {
+        setConversation((prevConversation) => {
+          const updatedConversation = {
+            ...prevConversation,
+            messages: [
+              ...prevConversation.messages,
+              {
+                type: 'apiMessage',
+                message: data.text,
+                sourceDocs: data.sourceDocuments
+                  ? data.sourceDocuments.map(
+                      (doc: any) =>
+                        new Document({
+                          pageContent: doc.pageContent,
+                          metadata: { source: doc.metadata.source },
+                        }),
+                    )
+                  : undefined,
+              } as ConversationMessage,
+            ],
+            history: [
+              ...prevConversation.history,
+              [question, data.text] as [string, string],
+            ],
+          };
+  
+          updateConversation(selectedChatId, updatedConversation);
+          return updatedConversation;
+        });
+      }
+
     }
 
     setLoading(false);

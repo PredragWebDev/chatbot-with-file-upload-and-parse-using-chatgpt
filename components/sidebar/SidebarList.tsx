@@ -62,13 +62,17 @@ const SidebarList: React.FC<SidebarListProps> = ({
   const [copyText, setCopyText] = React.useState("copy");
   const [embedScript, setEmbedScript] = React.useState("");
 
+  const [isChecked, setIsChecked] = useState(false);
+
   useEffect(() => {
       setItem('filetype', filetype);
+      setItem('ischecked', isChecked);
 
-      const test = getItem('filetype');
+      const test = getItem('ischecked');
 
       console.log('test', test);
-  }, [filetype]);
+  }, [filetype, isChecked]);
+
 
   const copyToClipboard = (content: any) => {
     const el = document.createElement('textarea');
@@ -146,6 +150,20 @@ const SidebarList: React.FC<SidebarListProps> = ({
             selectedNamespace={selectedNamespace}
             setSelectedNamespace={setSelectedNamespace}
           />
+
+          {isLoadingNamespaces ? (
+          <></>
+          ):(
+            <div className='flex text-white items-center pl-2'>
+            <input 
+              className='mr-2'
+              type='checkbox'
+              checked={isChecked}
+              onChange={() => setIsChecked(!isChecked)}
+            />
+            <p>Resume</p>
+          </div>
+          )}
         </div>
 
         {/* {

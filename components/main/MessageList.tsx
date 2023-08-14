@@ -128,7 +128,7 @@ function MessageList({ messages, loading, progressRate, messageListRef }: Messag
       {loading && (
         <div className="flex items-center justify-center h-32 w-full bg-gray-700/50">
           <div className="flex items-center justify-center max-w-full sm:max-w-4xl overflow-hidden px-2 sm:px-4 w-full">
-            <ReactLoading type='bars' color="grey"/>
+            <ReactLoading type='balls' color="grey"/>
             {/* <LoadingDots color="#04d9ff" /> */}
             {/* <ProgressBar className='w-full' completed={progressRate} /> */}
 

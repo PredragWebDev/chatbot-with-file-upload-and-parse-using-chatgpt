@@ -19,6 +19,7 @@ import process from 'process';
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
+import { json } from 'stream/consumers';
 // import { progressRate } from './global_variable';
 
 let progressRate;
@@ -231,8 +232,11 @@ export default async function handler(
     selectedNamespace,
     returnSourceDocuments,
     modelTemperature,
-    filetype
+    filetype,
+    isResume
   } = req.body;
+
+  console.log('resume???',isResume);
 
   const openAIapiKey = req.headers['x-openai-key'];
   const pineconeApiKey = req.headers['x-pinecone-key'];
@@ -307,92 +311,153 @@ export default async function handler(
 
     let progress_count = 0;
 
+    let isBreak = false;
+
+    
     fs.readdir(currentPath, async (error, files) => {
       if (error) {
         console.error('Error reading directory:', error);
         return;
       }
+      let resume = false;
+      let saved_content = [];
+      let saved_index = 0;
       for (const file of files) {
-        const docs = fs.readFileSync(currentPath + '\\' + file).toString();
-        const myDocs = JSON.parse(docs);
 
-        let responseResult = [];
+        if (isResume === 'true') {
+          if (fs.existsSync(process.cwd() + 'resume\\resume.txt')) {
+            
+            const content_of_resume = fs.readFileSync(currentPath+ '\\save.txt').toString();
+            const jsonData_of_content = JSON.parse(content_of_resume);
+            const saved_file_name = jsonData_of_content[0]['savedFile'];
+            saved_index = jsonData_of_content[0]['index'];
+            saved_content = jsonData_of_content[0]['content'];
+            
+            if (currentPath + '\\' + file === saved_file_name) {
+              resume = true;
+              isResume === 'false';
+            }
 
-        const chain = new LLMChain({llm:model, prompt:prompt});
+            fs.unlink(currentPath + '\\resume.txt', (err) => {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              console.log('File deleted successfully!')
+            });
 
-        for (let i = 0; i < myDocs.length; i++) {
-
-          try {
-            const doc = [myDocs[i]];
-
-            console.log("temp>>>>", doc[0]['pageContent']);
-      
-            const temp = doc[0]['pageContent'].replace(/"/g, "'");
-      
-            console.log('getting response...');
-      
-            const response = await chain.call({
-              context:temp,
-              question:sanitizedQuestion
-            })
-      
-            progress_count ++;
-
-            progressRate = progress_count/ (myDocs.length * files.length) * 100;
-
-            console.log('response>>>>', response.text);
-      
-            const jsonData = JSON.parse(response.text);
-
-            responseResult = [...responseResult, ...jsonData]
-
-            console.log('error is here?');
-          }
-          catch (error) {
-
-            console.log('error>>>>', error);
-            break;
-            // console.log(error.state);
+          } else {
+            console.log('could nod find save.txt file');
           }
           
+        } else {
+          if (file !== 'resume.txt') {
+
+            resume = true;
+          }
+          resume = true;
         }
 
-        const resultPath = process.cwd() + '\\result';
+        if (resume) {
 
-        if (!fs.existsSync(resultPath)) {
-          fs.mkdirSync(resultPath);
-        }
+          
+          const docs = fs.readFileSync(currentPath + '\\' + file).toString();
+          const myDocs = JSON.parse(docs);
+  
+          let responseResult = saved_content;
+  
+          const chain = new LLMChain({llm:model, prompt:prompt});
+  
+          for (let i = saved_index; i < myDocs.length; i++) {
+  
+            try {
+              const doc = [myDocs[i]];
+  
+              console.log("temp>>>>", doc[0]['pageContent']);
         
-        switch (filetype) {
-          case 'xlsx':
-            console.log("save as xlsx");
-            result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-            break;
-          case 'pdf':
-            console.log("save as pdf");
+              const temp = doc[0]['pageContent'].replace(/"/g, "'");
+        
+              console.log('getting response...');
+        
+              const response = await chain.call({
+                context:temp,
+                question:sanitizedQuestion
+              })
+        
+              progress_count ++;
+  
+              progressRate = progress_count/ (myDocs.length * files.length) * 100;
+  
+              console.log('response>>>>', response.text);
+        
+              const jsonData = JSON.parse(response.text);
+  
+              responseResult = [...responseResult, ...jsonData]
+  
+              console.log('error is here?');
+            }
+            catch (error) {
+  
+              console.log('error>>>>', error);
 
-            result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
-            break;
-          case 'docx':
-            console.log("save as docx");
+              if (error.name !== 'SyntaxError' && error.name !== 'TypeError') {
 
-            result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
-            break;
-          case 'txt':
-            console.log("save as txt");
+                console.log('error', error.name);
 
-            result = savaDataToTXT(responseResult, resultPath + '\\' + file);
-            break;
-          default:
-            result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-            break;
+                let contentOfResume = [
+                  {
+                    savedFile:currentPath + '\\' + file,
+                    index:i,
+                    content:responseResult
+                  }
+                ]
+    
+                fs.writeFileSync(currentPath + '\\resume.txt', JSON.stringify(contentOfResume));
+                isBreak = true;
+                break;
+              }
+              // console.log(error.state);
+            }
+            
+          }
+  
+          const resultPath = process.cwd() + '\\result';
+  
+          if (!fs.existsSync(resultPath)) {
+            fs.mkdirSync(resultPath);
+          }
+          
+          switch (filetype) {
+            case 'xlsx':
+              console.log("save as xlsx");
+              result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+              break;
+            case 'pdf':
+              console.log("save as pdf");
+  
+              result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
+              break;
+            case 'docx':
+              console.log("save as docx");
+  
+              result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
+              break;
+            case 'txt':
+              console.log("save as txt");
+  
+              result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+              break;
+            default:
+              result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+              break;
+          }
         }
 
       }
       res
         .status(200)
         // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
-        .json({ text: result, sourceDocuments: response_Source_doc });
+        .json({ text: result, sourceDocuments: response_Source_doc, isBreak: isBreak});
     })
     
   } catch (error: any) {
