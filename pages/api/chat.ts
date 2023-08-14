@@ -17,16 +17,9 @@ import {
 } from "langchain/prompts";
 import xlsx from 'xlsx';
 import axios from 'axios';
-import { getItem } from '@/libs/localStorageKeys';
-import PDFDocument from 'pdfkit';
-import JSzip, { files } from 'jszip';
 import process from 'process';
-// import Docxtemplater, { Document } from 'docxtemplater';
-import PizZip from 'pizzip';
-import jsonexport from 'jsonexport';
 import { jsPDF } from "jspdf";
-import { Document, Packer, Paragraph, TextRun } from "docx";
-import { Heart } from 'lucide-react';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
 // import { progressRate } from './global_variable';
 
@@ -161,31 +154,61 @@ function savaDataToPDF(data, filename) {
 
 function saveDataToDocx(data: any, filename: string) {
   try {
+
     const doc = new Document({
       sections: [
-          {
-              properties: {},
+        {
+          properties: {},
+          children: [
+            // Existing content ...
+            new Paragraph({
               children: [
-                  new Paragraph({
-                      children: [
-                          new TextRun("Hello World"),
-                          new TextRun({
-                              text: "Foo Bar",
-                              bold: true,
-                          }),
-                          new TextRun({
-                              text: "\tGithub is the best",
-                              bold: true,
-                          }),
-                      ],
-                  }),
+                new TextRun("The Result"),
               ],
-          },
+              alignment: AlignmentType.CENTER,
+              
+            }),
+            // Create a table
+            new Table({
+              rows: [
+                // Table header row
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      children: [
+                        new Paragraph("original English sentence"), // Header cell content
+                      ],
+                    }),
+                    new TableCell({
+                      children: [
+                        new Paragraph("original translation"), // Header cell content
+                      ],
+                    }),
+                    new TableCell({
+                      children: [
+                        new Paragraph("modified translation"), // Header cell content
+                      ],
+                    }),
+                    new TableCell({
+                      children: [
+                        new Paragraph("reason of correction"), // Header cell content
+                      ],
+                    }),
+                  ],
+                }),
+                // Table data rows
+                ...data.map(row => new TableRow({
+                  children: Object.values(row).map(value => new TableCell({children:[new Paragraph(value)]})),
+                })),
+              ],
+            }),
+          ],
+        },
       ],
     });
 
     Packer.toBuffer(doc).then((buffer) => {
-      fs.writeFileSync("My Document.docx", buffer);
+      fs.writeFileSync(filename, buffer);
     });
 
       return 'Saved the result to the DOCX!';
