@@ -241,8 +241,38 @@ export default function Home() {
     });
     const data = await response.json();
 
+    console.log('response>>>', data);
+
     if (data.error) {
       setError(data.error);
+      setConversation((prevConversation) => {
+        const updatedConversation = {
+          ...prevConversation,
+          messages: [
+            ...prevConversation.messages,
+            {
+              type: 'apiMessage',
+              message: data.error,
+              sourceDocs: data.sourceDocuments
+                ? data.sourceDocuments.map(
+                    (doc: any) =>
+                      new Document({
+                        pageContent: doc.pageContent,
+                        metadata: { source: doc.metadata.source },
+                      }),
+                  )
+                : undefined,
+            } as ConversationMessage,
+          ],
+          history: [
+            ...prevConversation.history,
+            [question, data.text] as [string, string],
+          ],
+        };
+
+        updateConversation(selectedChatId, updatedConversation);
+        return updatedConversation;
+      });
     } else {
       setConversation((prevConversation) => {
         const updatedConversation = {

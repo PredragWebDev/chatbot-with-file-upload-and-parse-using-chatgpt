@@ -111,16 +111,12 @@ function savaDataToPDF(data, filename) {
 
     const headers = [['original English sentences', 'original translation', 'modified translation', 'reason of correction']];
 
-
-    console.log('okay?');
-
     let index = 0;
     let intervalY = doc.internal.getFontSize() + 5;
     // Add each node data to the PDF
 
     let rows = [];
     data.forEach((node) => {
-      console.log(node['original translation']);
       rows.push([node['original English sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
 
       // doc.text(`${node['original English sentence']}, `, 10, index * intervalY);
@@ -280,7 +276,7 @@ export default async function handler(
   try {
 
     const model = new OpenAI({
-      temperature: 0, // increase temepreature to get more creative answers
+      temperature: 0.9, // increase temepreature to get more creative answers
       modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
       // maxTokens:2048,
       // modelName: "text-davinci-003",
@@ -290,11 +286,10 @@ export default async function handler(
       `{context}
       -----------------
       The sentences above are sentences with the same content in two languages.
-      English sentences are original text and other language is translation.
-
+      
       {question}
       
-      Provide the original language sentence , other language sentence, the modified version , and explanation why you have made the correction.
+      
       Provide the results in JOSN format like this:
       [
         original English sentence:"",
@@ -302,7 +297,7 @@ export default async function handler(
         modified translation:"",
         reason of correction:""
       ]
-      If you have not done a correction, please empty the modified translation and the reason of correction.`
+      `
     );
 
     let result ="";
@@ -336,12 +331,13 @@ export default async function handler(
 
         let responseResult = [];
 
+        const chain = new LLMChain({llm:model, prompt:prompt});
+
         for (let i = 0; i < myDocs.length; i++) {
 
           try {
             const doc = [myDocs[i]];
 
-            const chain = new LLMChain({llm:model, prompt:prompt});
             console.log("temp>>>>", doc[0]['pageContent']);
       
             const temp = doc[0]['pageContent'].replace(/"/g, "'");
@@ -361,8 +357,6 @@ export default async function handler(
       
             const jsonData = JSON.parse(response.text);
 
-            console.log('parse okay?');
-      
             responseResult = [...responseResult, ...jsonData]
 
             console.log('error is here?');
