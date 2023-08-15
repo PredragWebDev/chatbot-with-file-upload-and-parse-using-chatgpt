@@ -203,6 +203,9 @@ const SidebarList: React.FC<SidebarListProps> = ({
                 <option value='pdf'>*.pdf</option>
                 <option value='docx'>*.docx</option>
                 <option value='txt'>*.txt</option>
+                <option value='html'>*.html</option>
+                <option value='json'>*.json</option>
+
               </select>
             </div>
           </form>

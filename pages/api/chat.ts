@@ -205,6 +205,15 @@ function saveDataToDocx(data: any, filename: string) {
   }
 }
 
+function saveDataToJson (data, filename) {
+  fs.writeFileSync(filename, JSON.stringify(data), error => {
+    if (error) {
+      console.error('Error writing JSON string to file', error);
+    } else {
+      console.log('JSON string written to file');
+    }
+  });
+}
 const getAPIkeyLimit = async (apikey) => {
   try {
     const response = await axios.get('https://api.openai.com/v1/usage', {
@@ -281,6 +290,7 @@ export default async function handler(
       `{context}
       -----------------
       The sentences above are sentences with the same content in two languages.
+      Check if a translation exists for every sentence, and do the following only for sentences with a translation.
       
       {question}
       
@@ -470,6 +480,13 @@ export default async function handler(
                 console.log("save as txt");
     
                 result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+                break;
+              case 'html':
+                break;
+
+              case 'json':
+                console.log('save as json');
+                result = saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json'));
                 break;
               default:
                 result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));

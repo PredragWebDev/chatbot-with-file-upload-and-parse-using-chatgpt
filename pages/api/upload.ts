@@ -37,43 +37,28 @@ export const config = {
 
 const readDocxFile = async (filePath) => {
   // const readFile = util.promisify(fs.readFile);
-  try {
-    const result = await mammoth.extractRawText({ path: filePath });
-    const extractedText = result.value.trim();
+  // try {
+  //   const result = await mammoth.extractRawText({ path: filePath });
+  //   const extractedText = result.value.trim();
 
-    return extractedText;
+  //   return extractedText;
+  // } catch (error) {
+  //   console.error(error);
+  //   return null;
+  // }
+
+  try {
+    const directoryLoader = new DocxLoader(filePath);
+    const filecontent = await directoryLoader.load();
+
+    return filecontent;
   } catch (error) {
-    console.error(error);
+    console.log("error>>>", error);
     return null;
   }
 };
 
-// async function parsePDF(filePath) {
-//   try {
-//     const dataBuffer = fs.readFileSync(filePath);
-//     const pdfParser = new PDFParser();
-//     pdfParser.loadPDF(dataBuffer);
 
-//     pdfParser.on('pdfParser_dataReady', function (parsedData) {
-//       const content = parsedData.text;
-
-//       console.log(content); // or do something else with the parsed content
-//       return content;
-//     });
-
-//     pdfParser.on('pdfParser_dataError', function (error) {
-//       console.error('Error occurred while parsing the PDF:', error);
-//       return 'error';
-//     });
-    
-//     pdfParser.parse();
-
-//   } catch (error) {
-//     console.error('Error occurred while loading the PDF:', error);
-//     return 'error';
-
-//   }
-// }
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -181,7 +166,8 @@ export default async function handler(
             filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
             break;
           case '.docx':
-            filecontent = await readDocxFile(uploadedFile.path);
+            const temp = await readDocxFile(uploadedFile.path);
+            filecontent = temp[0]['pageContent'];
             break;
           default:
             filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
