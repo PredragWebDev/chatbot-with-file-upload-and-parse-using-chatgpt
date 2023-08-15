@@ -20,6 +20,7 @@ import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
 import { json } from 'stream/consumers';
+import { useState } from 'react';
 // import { progressRate } from './global_variable';
 
 let progressRate;
@@ -27,6 +28,7 @@ let progressRate;
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
 })
+
 
 // Helper method to wait for a middleware to execute before continuing
 // And to throw an error when an error happens in a middleware
@@ -233,7 +235,8 @@ export default async function handler(
     returnSourceDocuments,
     modelTemperature,
     filetype,
-    isResume
+    isResume,
+    controller
   } = req.body;
 
   console.log('resume???',isResume);
@@ -318,6 +321,10 @@ export default async function handler(
     let saved_index = 0;
     let saved_file_name = '';
 
+    let isAbort = false;
+
+    const signal = controller.signal;
+
     if (isResume === 'true') {
       if (fs.existsSync(currentPath + '\\resume.txt')) {
         
@@ -366,7 +373,6 @@ export default async function handler(
         }
 
         if (resume) {
-
           
           const docs = fs.readFileSync(currentPath + '\\' + file).toString();
           const myDocs = JSON.parse(docs);
@@ -388,9 +394,14 @@ export default async function handler(
         
               const response = await chain.call({
                 context:temp,
-                question:sanitizedQuestion
+                question:sanitizedQuestion,
+                signal
               })
         
+              // const remainGrant = response.header.get('x-ratelimit-remaining');
+              // const totalGrant = response.headers.get('x-ratelimit-limit');
+
+              // console.log(`Remaining grant: ${remainGrant}/${totalGrant}`);
               progress_count ++;
   
               progressRate = progress_count/ (myDocs.length * files.length) * 100;
@@ -405,11 +416,10 @@ export default async function handler(
             }
             catch (error) {
   
-              console.log('error>>>>', error);
+              console.log('error>>>>', error.name);
+              console.log('error message', error.message);
 
-              if (error.name !== 'SyntaxError' && error.name !== 'TypeError') {
-
-                console.log('error', error.name);
+              if (error.message === 'Request failed with status code 429') {
 
                 let contentOfResume = [
                   {
@@ -423,44 +433,56 @@ export default async function handler(
                 isBreak = true;
                 break;
               }
+
+              if (error.name === "AbortError") {
+                isAbort = true;
+                break;
+              }
               // console.log(error.state);
             }
             
           }
   
-          const resultPath = process.cwd() + '\\result';
-  
-          if (!fs.existsSync(resultPath)) {
-            fs.mkdirSync(resultPath);
-          }
-          
-          switch (filetype) {
-            case 'xlsx':
-              console.log("save as xlsx");
-              result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-              break;
-            case 'pdf':
-              console.log("save as pdf");
-  
-              result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
-              break;
-            case 'docx':
-              console.log("save as docx");
-  
-              result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
-              break;
-            case 'txt':
-              console.log("save as txt");
-  
-              result = savaDataToTXT(responseResult, resultPath + '\\' + file);
-              break;
-            default:
-              result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-              break;
+          if (true) {
+
+            const resultPath = process.cwd() + '\\result';
+    
+            if (!fs.existsSync(resultPath)) {
+              fs.mkdirSync(resultPath);
+            }
+            
+            switch (filetype) {
+              case 'xlsx':
+                console.log("save as xlsx");
+                result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                break;
+              case 'pdf':
+                console.log("save as pdf");
+    
+                result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
+                break;
+              case 'docx':
+                console.log("save as docx");
+    
+                result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
+                break;
+              case 'txt':
+                console.log("save as txt");
+    
+                result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+                break;
+              default:
+                result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                break;
+            }
+          } else {
+            result = 'Aborted the response!';
+            break;    
           }
         }
 
       }
+
       res
         .status(200)
         // .json({ text: response.text, sourceDocuments: response.sourceDocuments });

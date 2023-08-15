@@ -21,7 +21,7 @@ interface MessageListProps {
   messageListRef: React.RefObject<HTMLDivElement>;
 }
 
-function MessageList({ messages, loading, progressRate, messageListRef }: MessageListProps) {
+function MessageList({ messages, loading, progressRate, messageListRef, handleAbort }: MessageListProps) {
 
   const handle_save = async (index_of_message) => {
 
@@ -34,6 +34,7 @@ function MessageList({ messages, loading, progressRate, messageListRef }: Messag
     URL.revokeObjectURL(url);
     
   }
+
   return (
     <>
       <div className="overflow-y-auto">
@@ -129,6 +130,12 @@ function MessageList({ messages, loading, progressRate, messageListRef }: Messag
         <div className="flex items-center justify-center h-32 w-full bg-gray-700/50">
           <div className="flex items-center justify-center max-w-full sm:max-w-4xl overflow-hidden px-2 sm:px-4 w-full">
             <ReactLoading type='balls' color="grey"/>
+
+            {/* <button onClick={handleAbort}>
+              <span className={`mt-2 inline-flex items-center rounded-md px-2 py-1 text-xs sm:text-sm font-medium ring-1 ring-inset`}>
+                Stop response
+              </span>
+            </button> */}
             {/* <LoadingDots color="#04d9ff" /> */}
             {/* <ProgressBar className='w-full' completed={progressRate} /> */}
 

@@ -176,10 +176,17 @@ export default function Home() {
     pineconeIndexName,
   ]);
 
+  const controller = new AbortController();
+  const signal = controller.signal;
+
   useEffect(() => {
     textAreaRef.current?.focus();
+
   }, []);
 
+  function handleAbort() {
+    controller.abort();
+  }
   async function handleSubmit(e: any) {
     e.preventDefault();
     setError(null);
@@ -238,7 +245,8 @@ export default function Home() {
         returnSourceDocuments,
         modelTemperature,
         filetype, 
-        isResume
+        isResume,
+        controller
       }),
     });
     const data = await response.json();
@@ -285,7 +293,7 @@ export default function Home() {
               ...prevConversation.messages,
               {
                 type: 'apiMessage',
-                message: data.text + 'You requested too many times. You can resume later.',
+                message: ' You requested too many times. You can resume later. \n but ' + data.text,
                 sourceDocs: data.sourceDocuments
                   ? data.sourceDocuments.map(
                       (doc: any) =>
@@ -467,6 +475,7 @@ export default function Home() {
                     messages={messages.map(mapConversationMessageToMessage)}
                     loading={loading}
                     messageListRef={messageListRef}
+                    handleAbort = {handleAbort}
                   />
                 </div>
               </div>
