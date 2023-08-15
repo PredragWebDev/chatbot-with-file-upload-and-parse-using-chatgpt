@@ -39,13 +39,13 @@ const ChatForm = ({
     input.onchange = handleOpenFile;
   }
   
-  const handleOpenFile = (event) => {
+  const handleOpenFile = (event:any) => {
     const file = event.target.files[0];
  
     if (file) {
       const reader = new FileReader();
       reader.onload = function(evt) {
-        setQuery(evt.target.result);
+        setQuery(event.target.result);
       }
 
       reader.readAsText(file);

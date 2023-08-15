@@ -21,9 +21,9 @@ interface MessageListProps {
   messageListRef: React.RefObject<HTMLDivElement>;
 }
 
-function MessageList({ messages, loading, progressRate, messageListRef, handleAbort }: MessageListProps) {
+function MessageList({ messages, loading, messageListRef}: MessageListProps) {
 
-  const handle_save = async (index_of_message) => {
+  const handle_save = async (index_of_message:any) => {
 
     const blob = new Blob([messages[index_of_message].message], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
