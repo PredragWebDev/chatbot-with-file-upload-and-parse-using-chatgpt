@@ -325,6 +325,7 @@ export default async function handler(
     let progress_count = 0;
 
     let isBreak = false;
+    let isExpired = false;
 
     let resume = false;
     let saved_content = [];
@@ -444,6 +445,10 @@ export default async function handler(
                 break;
               }
 
+              if (error.message === 'Request failed with status code 401') {
+                isExpired = true;
+              }
+
               if (error.name === "AbortError") {
                 isAbort = true;
                 break;
@@ -503,7 +508,7 @@ export default async function handler(
       res
         .status(200)
         // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
-        .json({ text: result, sourceDocuments: response_Source_doc, isBreak: isBreak});
+        .json({ text: result, sourceDocuments: response_Source_doc, isBreak: isBreak, isExpired:isExpired});
     })
     
   } catch (error: any) {
