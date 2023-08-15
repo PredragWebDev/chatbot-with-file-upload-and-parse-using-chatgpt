@@ -313,49 +313,56 @@ export default async function handler(
 
     let isBreak = false;
 
+    let resume = false;
+    let saved_content = [];
+    let saved_index = 0;
+    let saved_file_name = '';
+
+    if (isResume === 'true') {
+      if (fs.existsSync(currentPath + '\\resume.txt')) {
+        
+        const content_of_resume = fs.readFileSync(currentPath+ '\\resume.txt').toString();
+        const jsonData_of_content = JSON.parse(content_of_resume);
+        saved_file_name = jsonData_of_content[0]['savedFile'];
+        saved_index = jsonData_of_content[0]['index'];
+        saved_content = jsonData_of_content[0]['content'];
+        
+        console.log('saved index>>>', saved_index);
+        
+
+        fs.unlink(currentPath + '\\resume.txt', (err) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log('File deleted successfully!')
+        });
+
+      } else {
+        console.log('could not find save.txt file');
+      }
+      
+    } 
     
     fs.readdir(currentPath, async (error, files) => {
       if (error) {
         console.error('Error reading directory:', error);
         return;
       }
-      let resume = false;
-      let saved_content = [];
-      let saved_index = 0;
+      
       for (const file of files) {
 
         if (isResume === 'true') {
-          if (fs.existsSync(process.cwd() + 'resume\\resume.txt')) {
-            
-            const content_of_resume = fs.readFileSync(currentPath+ '\\save.txt').toString();
-            const jsonData_of_content = JSON.parse(content_of_resume);
-            const saved_file_name = jsonData_of_content[0]['savedFile'];
-            saved_index = jsonData_of_content[0]['index'];
-            saved_content = jsonData_of_content[0]['content'];
-            
-            if (currentPath + '\\' + file === saved_file_name) {
-              resume = true;
-              isResume === 'false';
-            }
 
-            fs.unlink(currentPath + '\\resume.txt', (err) => {
-              if (err) {
-                console.log(err);
-                return;
-              }
-              console.log('File deleted successfully!')
-            });
-
-          } else {
-            console.log('could nod find save.txt file');
+          if (currentPath + '\\' + file === saved_file_name) {
+            resume = true;
+            isResume === 'false';
           }
-          
         } else {
           if (file !== 'resume.txt') {
-
+    
             resume = true;
           }
-          resume = true;
         }
 
         if (resume) {
