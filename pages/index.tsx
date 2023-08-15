@@ -313,7 +313,35 @@ export default function Home() {
           updateConversation(selectedChatId, updatedConversation);
           return updatedConversation;
         });
-      } else {
+      } if (data.isExpired) {
+        setConversation((prevConversation) => {
+          const updatedConversation = {
+            ...prevConversation,
+            messages: [
+              ...prevConversation.messages,
+              {
+                type: 'apiMessage',
+                message: 'OpenAI API key is expired.',
+                sourceDocs: data.sourceDocuments
+                  ? data.sourceDocuments.map(
+                      (doc: any) =>
+                        new Document({
+                          pageContent: doc.pageContent,
+                          metadata: { source: doc.metadata.source },
+                        }),
+                    )
+                  : undefined,
+              } as ConversationMessage,
+            ],
+            history: [
+              ...prevConversation.history,
+              [question, data.text] as [string, string],
+            ],
+          };
+          updateConversation(selectedChatId, updatedConversation);
+          return updatedConversation;
+        });
+      }else {
         setConversation((prevConversation) => {
           const updatedConversation = {
             ...prevConversation,

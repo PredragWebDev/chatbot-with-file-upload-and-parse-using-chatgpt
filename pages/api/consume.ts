@@ -114,7 +114,7 @@ export default async function handler(
 
     res.status(200).json({ message: 'Data ingestion complete' });
   } catch (error) {
-    console.log('error', error);
+    console.log('error>>>>', error.message);
 
     // Delete the PDF, DOCX, TXT, CSV files
     const filesToDelete = fs
@@ -131,7 +131,7 @@ export default async function handler(
     });
 
     if (error) {
-      if (error.status == 401) {
+      if (error.message === 'Request failed with status code 401') {
         res.status(500).json({ error: error.message + ". Please check Openai Api key." });
       } else {
         res.status(500).json({ error: error.message + ". Please check files again." });
