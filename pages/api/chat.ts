@@ -403,148 +403,151 @@ export default async function handler(
     
     fs.readdir(currentPath, async (error, files) => {
       if (error) {
+
+        result = "no such namespace";
         console.error('Error reading directory:', error);
-        return;
-      }
-      
-      for (const file of files) {
+      } else {
 
-        if (isResume === 'true') {
-
-          if (currentPath + '\\' + file === saved_file_name) {
-            resume = true;
-            isResume === 'false';
-          }
-        } else {
-          if (file !== 'resume.txt') {
-    
-            resume = true;
-          }
-        }
-
-        if (resume) {
-          
-          const docs = fs.readFileSync(currentPath + '\\' + file).toString();
-          const myDocs = JSON.parse(docs);
+        for (const file of files) {
   
-          let responseResult = saved_content;
+          if (isResume === 'true') {
   
-          const chain = new LLMChain({llm:model, prompt:prompt});
-  
-          for (let i = saved_index; i < myDocs.length; i++) {
-  
-            try {
-              const doc = [myDocs[i]];
-  
-              console.log("temp>>>>", doc[0]['pageContent']);
-        
-              const temp = doc[0]['pageContent'].replace(/"/g, "'");
-        
-              console.log('getting response...');
-        
-              const response = await chain.call({
-                context:temp,
-                question:sanitizedQuestion,
-                signal
-              })
-        
-              // const remainGrant = response.header.get('x-ratelimit-remaining');
-              // const totalGrant = response.headers.get('x-ratelimit-limit');
-
-              // console.log(`Remaining grant: ${remainGrant}/${totalGrant}`);
-              progress_count ++;
-  
-              progressRate = progress_count/ (myDocs.length * files.length) * 100;
-  
-              console.log('response>>>>', response.text);
-        
-              const jsonData = JSON.parse(response.text);
-  
-              responseResult = [...responseResult, ...jsonData]
-  
-              console.log('error is here?');
-            }
-            catch (error) {
-  
-              console.log('error>>>>', error.name);
-              console.log('error message', error.message);
-
-              if (error.message === 'Request failed with status code 429') {
-
-                let contentOfResume = [
-                  {
-                    savedFile:currentPath + '\\' + file,
-                    index:i,
-                    content:responseResult
-                  }
-                ]
-    
-                fs.writeFileSync(currentPath + '\\resume.txt', JSON.stringify(contentOfResume));
-                isBreak = true;
-                break;
-              }
-
-              if (error.message === 'Request failed with status code 401') {
-                isExpired = true;
-              }
-
-              if (error.name === "AbortError") {
-                isAbort = true;
-                break;
-              }
-              // console.log(error.state);
-            }
-            
-          }
-  
-          if (true) {
-
-            const resultPath = process.cwd() + '\\public\\result';
-    
-            if (!fs.existsSync(resultPath)) {
-              fs.mkdirSync(resultPath);
-            }
-            
-            switch (filetype) {
-              case 'xlsx':
-                console.log("save as xlsx");
-                result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-                break;
-              case 'pdf':
-                console.log("save as pdf");
-    
-                result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
-                break;
-              case 'docx':
-                console.log("save as docx");
-    
-                result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
-                break;
-              case 'txt':
-                console.log("save as txt");
-    
-                result = savaDataToTXT(responseResult, resultPath + '\\' + file);
-                break;
-              case 'html':
-
-                result = saveDataToHTML(responseResult, resultPath +'\\' + file);
-                break;
-
-              case 'json':
-                console.log('save as json');
-                result = saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json'));
-                break;
-              default:
-                result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
-                break;
+            if (currentPath + '\\' + file === saved_file_name) {
+              resume = true;
+              isResume === 'false';
             }
           } else {
-            result = 'Aborted the response!';
-            break;    
+            if (file !== 'resume.txt') {
+      
+              resume = true;
+            }
           }
+  
+          if (resume) {
+            
+            const docs = fs.readFileSync(currentPath + '\\' + file).toString();
+            const myDocs = JSON.parse(docs);
+    
+            let responseResult = saved_content;
+    
+            const chain = new LLMChain({llm:model, prompt:prompt});
+    
+            for (let i = saved_index; i < myDocs.length; i++) {
+    
+              try {
+                const doc = [myDocs[i]];
+    
+                console.log("temp>>>>", doc[0]['pageContent']);
+          
+                const temp = doc[0]['pageContent'].replace(/"/g, "'");
+          
+                console.log('getting response...');
+          
+                const response = await chain.call({
+                  context:temp,
+                  question:sanitizedQuestion,
+                  signal
+                })
+          
+                // const remainGrant = response.header.get('x-ratelimit-remaining');
+                // const totalGrant = response.headers.get('x-ratelimit-limit');
+  
+                // console.log(`Remaining grant: ${remainGrant}/${totalGrant}`);
+                progress_count ++;
+    
+                progressRate = progress_count/ (myDocs.length * files.length) * 100;
+    
+                console.log('response>>>>', response.text);
+          
+                const jsonData = JSON.parse(response.text);
+    
+                responseResult = [...responseResult, ...jsonData]
+    
+                console.log('error is here?');
+              }
+              catch (error) {
+    
+                console.log('error>>>>', error.name);
+                console.log('error message', error.message);
+  
+                if (error.message === 'Request failed with status code 429') {
+  
+                  let contentOfResume = [
+                    {
+                      savedFile:currentPath + '\\' + file,
+                      index:i,
+                      content:responseResult
+                    }
+                  ]
+      
+                  fs.writeFileSync(currentPath + '\\resume.txt', JSON.stringify(contentOfResume));
+                  isBreak = true;
+                  break;
+                }
+  
+                if (error.message === 'Request failed with status code 401') {
+                  isExpired = true;
+                }
+  
+                if (error.name === "AbortError") {
+                  isAbort = true;
+                  break;
+                }
+                // console.log(error.state);
+              }
+              
+            }
+    
+            if (true) {
+  
+              const resultPath = process.cwd() + '\\public\\result';
+      
+              if (!fs.existsSync(resultPath)) {
+                fs.mkdirSync(resultPath);
+              }
+              
+              switch (filetype) {
+                case 'xlsx':
+                  console.log("save as xlsx");
+                  result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                  break;
+                case 'pdf':
+                  console.log("save as pdf");
+      
+                  result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
+                  break;
+                case 'docx':
+                  console.log("save as docx");
+      
+                  result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
+                  break;
+                case 'txt':
+                  console.log("save as txt");
+      
+                  result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+                  break;
+                case 'html':
+  
+                  result = saveDataToHTML(responseResult, resultPath +'\\' + file);
+                  break;
+  
+                case 'json':
+                  console.log('save as json');
+                  result = saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json'));
+                  break;
+                default:
+                  result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                  break;
+              }
+            } else {
+              result = 'Aborted the response!';
+              break;    
+            }
+          }
+  
         }
-
       }
+      
 
       res
         .status(200)
