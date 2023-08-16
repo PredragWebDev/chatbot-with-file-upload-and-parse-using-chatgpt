@@ -21,6 +21,8 @@ import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, Align
 import 'jspdf-autotable';
 import { json } from 'stream/consumers';
 import { useState } from 'react';
+import { saveAs } from 'file-saver';
+import { Finlandica } from 'next/font/google';
 // import { progressRate } from './global_variable';
 
 let progressRate;
@@ -204,7 +206,45 @@ function saveDataToDocx(data: any, filename: string) {
       return error;
   }
 }
+function saveDataToHTML(data, filename) {
+  try {
+    // Create the result header
+    const header = "<h1>the result</h1>\n";
+  
+    // Create the table headers
+    const tableHeaders = "<tr><th>original English sentences</th><th>original translation</th><th>modified translation</th><th>reason of correction</th></tr>\n";
+  
+    // Create the rows for the table
+    let rows = '';
+    data.forEach((node) => {
+      rows += `<tr><td>${node['original English sentence']}</td><td>${node['original translation']}</td><td>${node['modified translation']}</td><td>${node['reason of correction']}</td></tr>\n`;
+    });
+  
+    // Combine the header, table headers, and rows into an HTML table
+    const html = `<html><body>${header}<table>${tableHeaders}${rows}</table></body></html>`;
+  
+    console.log('html >>>>', html);
+    
+    // Uncomment the following lines if you want to download the file in the browser
+    // const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    // saveAs(blob, 'result.html');
+    
+    // Comment out this line if you want to download the file in the browser
+    fs.writeFileSync(filename, html);
 
+    fs.rename(filename, filename.replace('.txt', '.html'), (error) => {
+      if (error) {
+        console.log('Renaming file is Error:', error)
+      } else {
+        console.log('Renamed the file!');
+      }
+    })
+    return 'Saved the result to an HTML file!';
+  } catch (error) {
+    console.log('Error:', error);
+    return error;
+  }
+}
 function saveDataToJson (data, filename) {
   fs.writeFileSync(filename, JSON.stringify(data), error => {
     if (error) {
@@ -346,7 +386,6 @@ export default async function handler(
         saved_content = jsonData_of_content[0]['content'];
         
         console.log('saved index>>>', saved_index);
-        
 
         fs.unlink(currentPath + '\\resume.txt', (err) => {
           if (err) {
@@ -460,7 +499,7 @@ export default async function handler(
   
           if (true) {
 
-            const resultPath = process.cwd() + '\\result';
+            const resultPath = process.cwd() + '\\public\\result';
     
             if (!fs.existsSync(resultPath)) {
               fs.mkdirSync(resultPath);
@@ -487,6 +526,8 @@ export default async function handler(
                 result = savaDataToTXT(responseResult, resultPath + '\\' + file);
                 break;
               case 'html':
+
+                result = saveDataToHTML(responseResult, resultPath +'\\' + file);
                 break;
 
               case 'json':

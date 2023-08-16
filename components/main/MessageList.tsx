@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { LoadingDots } from '@/components/other';
 import {
@@ -14,7 +14,7 @@ import NextNProgress from 'nextjs-progressbar';
 import nProgress from 'nprogress';
 import ProgressBar from "@ramonak/react-progress-bar";
 import ReactLoading from "react-loading";
-
+import { saveAs } from 'file-saver';
 interface MessageListProps {
   messages: Message[];
   loading: boolean;
@@ -23,15 +23,13 @@ interface MessageListProps {
 
 function MessageList({ messages, loading, messageListRef}: MessageListProps) {
 
+  const [filePath, setFilePath] = useState('');
+  
   const handle_save = async (index_of_message:any) => {
+    
+    const blob = new Blob([messages[index_of_message].message], { type: 'text/plain;charset=utf-8' });
 
-    const blob = new Blob([messages[index_of_message].message], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'save.txt';
-    link.click();
-    URL.revokeObjectURL(url);
+    saveAs(blob);
     
   }
 
