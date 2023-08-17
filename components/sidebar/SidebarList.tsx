@@ -67,10 +67,6 @@ const SidebarList: React.FC<SidebarListProps> = ({
   useEffect(() => {
       setItem('filetype', filetype);
       setItem('ischecked', isChecked);
-
-      const test = getItem('ischecked');
-
-      console.log('test', test);
   }, [filetype, isChecked]);
 
 

@@ -275,14 +275,10 @@ export default async function handler(
           .pipe(csv())
           .on('data', (data) => {
   
-            // console.log('data>>>', data);
             if (data["1 file"] !== "") {
   
-              // console.log("test>>>",data['1 file']);
               context += data[`${index_of_file} file`] + '\n'
-              
             }
-            // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
           })
           .on('end', () => {
             context = context.replaceAll('\r', ' ');
