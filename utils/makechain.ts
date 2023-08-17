@@ -23,7 +23,7 @@ The original text is English and other language is translation.
 Provide the original language sentence , other language sentence, the modified version , and explanation why you have made the correction.
 Provide the results in JOSN format like this:
 [
-  original English sentence:"",
+  original sentence:"",
   original translation:"",
   modified translation:"",
   reason of correction:""

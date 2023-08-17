@@ -10,9 +10,10 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
-import path from 'path';
-import fs from 'fs';
-import { forEach, result } from 'lodash';
+import path, { resolve } from 'path';
+// import fs from 'fs';
+import fs from 'fs-extra';
+import { forEach, head, reject, result } from 'lodash';
 import PDFParser from 'pdf2json';
 import { PDFDocument } from 'pdf-lib';
 import pdf from 'pdf-parse';
@@ -120,7 +121,7 @@ export default async function handler(
           return tempResult;
         })
   
-        data[`${index_of_file+1} file`] = columnData;
+        data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData;
         
         index_of_file ++;
       } else if (ext === '.xlsx') {
@@ -150,7 +151,7 @@ export default async function handler(
           return tempResult;
         });
       
-        data[`${index_of_file + 1} file`] = columnData;
+        data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData;
       
         index_of_file++;
       } else {
@@ -176,7 +177,7 @@ export default async function handler(
   
         console.log("filecontent", filecontent);
 
-        data[`${index_of_file+1} file`] = filecontent.split('\n');
+        data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = filecontent.split('\n');
         index_of_file++;
       }
 
@@ -200,53 +201,101 @@ export default async function handler(
 
     if (fields.inputMethod[0] === 'separate') { // if separate   
 
-      for (const file of Object.values(files) as UploadedFile[][]) {
-        if (!file || file.length === 0) {
-          continue;
-        }
-        const uploadedFile = file[0] as UploadedFile;
+      // for (const file of Object.values(files) as UploadedFile[][]) {
+      //   if (!file || file.length === 0) {
+      //     continue;
+      //   }
+      //   const uploadedFile = file[0] as UploadedFile;
   
-        if (process.env.NODE_ENV !== 'production') {
+        // if (process.env.NODE_ENV !== 'production') {
           // In local development, move the file from the OS temp directory to the project 'tmp' directory
           const projectTmpDir = path.join(process.cwd(), 'tmp');
           fs.mkdirSync(projectTmpDir, { recursive: true });
-  
-          const newFilePath = path.join(
-            projectTmpDir,
-            uploadedFile.originalFilename,
-          );
+
+          const filesToDelete = fs
+            .readdirSync(projectTmpDir)
+            .filter(
+              (file) =>
+                file.endsWith('.pdf') ||
+                file.endsWith('.docx') ||
+                file.endsWith('.txt') ||
+                file.endsWith('.csv'),
+            );
+          filesToDelete.forEach((file) => {
+            fs.unlinkSync(`${projectTmpDir}/${file}`);
+          });
+
+          // const newFilePath = path.join(
+          //   projectTmpDir,
+          //   uploadedFile.originalFilename,
+          // );
   
           //CSV or XLSX convertion txt
-          const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
+          // const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
   
-          let context = "";
-          fs.createReadStream('combined.csv')
-          .pipe(csv())
-          .on('data', (data) => {
+          let header =[];
+          let context = [];
+          const dataStream = fs.createReadStream('combined.csv')
+          .pipe(csv());
+
+          await new Promise<void>((resolve, reject) => {
+            dataStream
+            .on('data', (data) => {
+    
+              if (header.length < 1) {
+                header = Object.keys(data);
+                console.log('header>>>>', header[0]);
+              }
+              // console.log('data>>>', data);
+              for (let i = 0 ; i < header.length; i += 2) {
+                  context[`${header[i]}`] += data[`${header[i]}`] + ', ' + data[`${header[i+1]}`] + '\n';
+              }
   
-            // console.log('data>>>', data);
-            if (data["1 file"] !== "") {
+              // if (data["1 file"] !== "") {
+                  
+              //   // console.log("test>>>",data['1 file']);
+              //   context += data[`1 file`] + ', ' +  data[`2 file`] + '\n'
+                
+              // }
+              // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+            })
+            .on('error', err => {
+              console.log('error>>>', err);
+            })
+            .on('end', () => {
+              console.log('context length>>>', Object.keys(context).length);
+              console.log('context keys', Object.keys(context));
   
-              // console.log("test>>>",data['1 file']);
-              context += data[`1 file`] + ', ' +  data[`2 file`] + '\n'
-              
-            }
-            // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
+              for (let i = 0; i < Object.keys(context).length ; i ++) {
+                const name_of_field = `${Object.keys(context)[i]}`;
+  
+                context[`${name_of_field}`] = context[`${name_of_field}`].replaceAll('\r', ' ');
+                fs.writeFileSync(path.join(projectTmpDir, name_of_field,), context[`${name_of_field}`]);
+                uploadedFiles.push(path.join(projectTmpDir, name_of_field));
+                console.log('CSV to txt');
+              }
+  
+              console.log('length>>>', uploadedFiles.length);
+
+              resolve();
+              // context = context.replaceAll('\r', ' ');
+              // fs.writeFileSync(newFilePath.replace(ext, '.txt'), context);
+            });
+
           })
-          .on('end', () => {
-            context = context.replaceAll('\r', ' ');
-            fs.writeFileSync(newFilePath.replace(ext, '.txt'), context);
-            console.log('CSV to txt');
-          });
+
+
+          console.log('end!');
+          console.log('length>>>', uploadedFiles.length);
+
   
-          uploadedFiles.push(newFilePath.replace(ext, '.txt'));
-          break;
+          // break;
   
-        } else {
-          // In production, just use the file as is
-          uploadedFiles.push(uploadedFile.path);
-        }
-      }
+        // } else {
+        //   // In production, just use the file as is
+        //   uploadedFiles.push(uploadedFile.path);
+        // }
+      // }
     } else {
       let index_of_file = 0;
       for (const file of Object.values(files) as UploadedFile[][]) {
@@ -259,6 +308,19 @@ export default async function handler(
           // In local development, move the file from the OS temp directory to the project 'tmp' directory
           const projectTmpDir = path.join(process.cwd(), 'tmp');
           fs.mkdirSync(projectTmpDir, { recursive: true });
+          
+          const filesToDelete = fs
+            .readdirSync(projectTmpDir)
+            .filter(
+              (file) =>
+                file.endsWith('.pdf') ||
+                file.endsWith('.docx') ||
+                file.endsWith('.txt') ||
+                file.endsWith('.csv'),
+            );
+          filesToDelete.forEach((file) => {
+            fs.unlinkSync(`${projectTmpDir}/${file}`);
+          });
   
           const newFilePath = path.join(
             projectTmpDir,
@@ -297,6 +359,8 @@ export default async function handler(
         }
       }
     }
+
+    console.log('uploaded file length', uploadedFiles.length);
 
     if (uploadedFiles.length > 0) {
       return res.status(200).json({

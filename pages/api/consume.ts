@@ -7,11 +7,13 @@ import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import { NextApiRequest, NextApiResponse } from 'next';
-import fs, { mkdir } from 'fs';
+// import fs, { mkdir } from 'fs';
+import fs from 'fs-extra';
 import { initPinecone } from '@/utils/pinecone-client';
 import process from 'process';
 import { LocalStorage } from "node-localstorage";
 import { error } from 'console';
+import { mkdir } from 'fs';
 global.localStorage = new LocalStorage('./docs');
 
 const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
@@ -47,10 +49,21 @@ export default async function handler(
   }
   currentPath += '\\' + namespaceName;
 
-  if (!fs.existsSync(currentPath)) {
-
-    fs.mkdirSync(currentPath);
+  if (fs.existsSync(currentPath)) {
+    const filesToDelete = fs
+        .readdirSync(currentPath)
+        .filter(
+          (file) =>
+            file.endsWith('.pdf') ||
+            file.endsWith('.docx') ||
+            file.endsWith('.txt') ||
+            file.endsWith('.csv'),
+        );
+      filesToDelete.forEach((file) => {
+        fs.unlinkSync(`${currentPath}/${file}`);
+      });
   }
+  
   
   try {
 

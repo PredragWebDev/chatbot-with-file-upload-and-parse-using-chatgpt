@@ -76,7 +76,7 @@ function savaDataToTXT(data, filename) {
   try {
 
     data.forEach(((node) => {
-      result += `${node['original English sentence']}, ${node['original translation']}, ${node['modified translation']}, ${node['reason of correction']}\n`;
+      result += `${node['original source sentence']}, ${node['original translation']}, ${node['modified translation']}, ${node['reason of correction']}\n`;
     }))
 
     fs.writeFileSync(filename, result);
@@ -112,7 +112,7 @@ function savaDataToPDF(data, filename) {
     doc.text("the result", x, y);
     // Write the result header
 
-    const headers = [['original English sentences', 'original translation', 'modified translation', 'reason of correction']];
+    const headers = [['original source sentences', 'original translation', 'modified translation', 'reason of correction']];
 
     let index = 0;
     let intervalY = doc.internal.getFontSize() + 5;
@@ -120,7 +120,7 @@ function savaDataToPDF(data, filename) {
 
     let rows = [];
     data.forEach((node) => {
-      rows.push([node['original English sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
+      rows.push([node['original source sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
     
     });
 
@@ -165,7 +165,7 @@ function saveDataToDocx(data: any, filename: string) {
                   children: [
                     new TableCell({
                       children: [
-                        new Paragraph("original English sentence"), // Header cell content
+                        new Paragraph("original source sentence"), // Header cell content
                       ],
                     }),
                     new TableCell({
@@ -212,12 +212,12 @@ function saveDataToHTML(data, filename) {
     const header = "<h1>the result</h1>\n";
   
     // Create the table headers
-    const tableHeaders = "<tr><th>original English sentences</th><th>original translation</th><th>modified translation</th><th>reason of correction</th></tr>\n";
+    const tableHeaders = "<tr><th>original source sentences</th><th>original translation</th><th>modified translation</th><th>reason of correction</th></tr>\n";
   
     // Create the rows for the table
     let rows = '';
     data.forEach((node) => {
-      rows += `<tr><td>${node['original English sentence']}</td><td>${node['original translation']}</td><td>${node['modified translation']}</td><td>${node['reason of correction']}</td></tr>\n`;
+      rows += `<tr><td>${node['original source sentence']}</td><td>${node['original translation']}</td><td>${node['modified translation']}</td><td>${node['reason of correction']}</td></tr>\n`;
     });
   
     // Combine the header, table headers, and rows into an HTML table
@@ -336,7 +336,7 @@ export default async function handler(
       
       Provide the results in JOSN format like this:
       [
-        original sentence:"",
+        original source sentence:"",
         original translation:"",
         modified translation:"",
         reason of correction:""

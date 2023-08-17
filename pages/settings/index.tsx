@@ -46,7 +46,7 @@ export default function Settings() {
   );
   const [namespaces, setNamespaces] = useState<string[]>([]);
   const [ingestErrorMessage, setIngestErrorMessage] = useState<string>('');
-  const [chunkSize, setChunkSize] = useState<number>(1500);
+  const [chunkSize, setChunkSize] = useState<number>(1024);
   const [overlapSize, setOverlapSize] = useState<number>(20);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
   const [showChunkSizeModal, setShowChunkSizeModal] = useState<boolean>(false);
@@ -208,6 +208,8 @@ export default function Settings() {
         method: 'POST',
         body: formData
       });
+
+      console.log('response>>>>', response);
 
 
       if (response.ok) {
