@@ -12,14 +12,10 @@ export default async function handler(
             console.error('Error reading directory:', error);
             return;
         }
-
-        console.log('result files>>>', resultFiles);
-
         res
         .status(200)
         // .json({ text: response.text, sourceDocuments: response.sourceDocuments });
         .json({ resultFiles: resultFiles });
     })
-
 
 }

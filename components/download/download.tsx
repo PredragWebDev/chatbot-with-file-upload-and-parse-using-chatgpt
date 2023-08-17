@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
-import process from "process";
 
 export const DownLoad_Modal = () => {
     const [resultFiles, setResultFiles] = useState([]);
 
     const [checkBox, setCheckBox] = useState([]);
 
-    // let resultFiles = [];
     const fetchData = async () => {
         const response = await fetch('/api/resultFiles');
         const data = await response.json();
 
         setResultFiles(data.resultFiles);
-        // resultFiles = await response.json();
-        console.log(data.resultFiles);
     };
 
     const makeCheckbox = async () => {
@@ -24,7 +20,6 @@ export const DownLoad_Modal = () => {
         }));
 
         setCheckBox(temp as never[]);
-        console.log('checkbox>>>>>', checkBox);
 
     }
     useEffect(() => {
