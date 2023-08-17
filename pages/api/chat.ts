@@ -8,24 +8,12 @@ import fs from 'fs';
 import { PromptTemplate } from 'langchain/prompts';
 import { OpenAI } from 'langchain/llms/openai';
 import { LLMChain } from "langchain/chains";
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from "langchain/prompts";
 import xlsx from 'xlsx';
 import axios from 'axios';
 import process from 'process';
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
-import { json } from 'stream/consumers';
-import { useState } from 'react';
-import { saveAs } from 'file-saver';
-import { Finlandica } from 'next/font/google';
-// import { progressRate } from './global_variable';
-
-let progressRate;
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -449,14 +437,6 @@ export default async function handler(
                   signal
                 })
           
-                // const remainGrant = response.header.get('x-ratelimit-remaining');
-                // const totalGrant = response.headers.get('x-ratelimit-limit');
-  
-                // console.log(`Remaining grant: ${remainGrant}/${totalGrant}`);
-                progress_count ++;
-    
-                progressRate = progress_count/ (myDocs.length * files.length) * 100;
-    
                 console.log('response>>>>', response.text);
           
                 const jsonData = JSON.parse(response.text);

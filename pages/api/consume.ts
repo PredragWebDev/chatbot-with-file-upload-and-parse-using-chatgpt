@@ -1,19 +1,12 @@
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
-import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import { NextApiRequest, NextApiResponse } from 'next';
-// import fs, { mkdir } from 'fs';
 import fs from 'fs-extra';
 import { initPinecone } from '@/utils/pinecone-client';
 import process from 'process';
 import { LocalStorage } from "node-localstorage";
-import { error } from 'console';
-import { mkdir } from 'fs';
 global.localStorage = new LocalStorage('./docs');
 
 const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';

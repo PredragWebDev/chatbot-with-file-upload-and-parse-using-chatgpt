@@ -1,25 +1,13 @@
-import {json2csv} from 'json2csv';
 import Papa from 'papaparse';
 import { Parser } from 'json2csv';
 import csv from 'csv-parser';
 import xlsx from 'xlsx';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { DocxLoader } from 'langchain/document_loaders/fs/docx';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
 import path, { resolve } from 'path';
-// import fs from 'fs';
 import fs from 'fs-extra';
-import { forEach, head, reject, result } from 'lodash';
-import PDFParser from 'pdf2json';
-import { PDFDocument } from 'pdf-lib';
 import pdf from 'pdf-parse';
-import util from 'util';
-import { Document } from 'docxtemplater';
-import * as mammoth from 'mammoth';
 
 interface UploadedFile {
   slice(arg0: number, arg1: number): unknown;
@@ -37,16 +25,6 @@ export const config = {
 };
 
 const readDocxFile = async (filePath) => {
-  // const readFile = util.promisify(fs.readFile);
-  // try {
-  //   const result = await mammoth.extractRawText({ path: filePath });
-  //   const extractedText = result.value.trim();
-
-  //   return extractedText;
-  // } catch (error) {
-  //   console.error(error);
-  //   return null;
-  // }
 
   try {
     const directoryLoader = new DocxLoader(filePath);
@@ -101,8 +79,6 @@ export default async function handler(
           skipEmputyLines:true
           })
   
-        const columnName = Object.keys(results.data[0][0])[0];
-  
         const columnData = results.data.map((row: { [x: string]: any; }) => {
           let tempResult = "";
           console.log('row>>>', row[0]);
@@ -136,8 +112,6 @@ export default async function handler(
       
         const columnData = jsonData.map((row) => {
           let tempResult = "";
-          // console.log('row>>>', row[0]);
-          // console.log('row>>>', row.length);
 
           for (let i = 0 ; i < row.length; i ++) {
 
@@ -201,101 +175,67 @@ export default async function handler(
 
     if (fields.inputMethod[0] === 'separate') { // if separate   
 
-      // for (const file of Object.values(files) as UploadedFile[][]) {
-      //   if (!file || file.length === 0) {
-      //     continue;
-      //   }
-      //   const uploadedFile = file[0] as UploadedFile;
-  
-        // if (process.env.NODE_ENV !== 'production') {
-          // In local development, move the file from the OS temp directory to the project 'tmp' directory
-          const projectTmpDir = path.join(process.cwd(), 'tmp');
-          fs.mkdirSync(projectTmpDir, { recursive: true });
+      // In local development, move the file from the OS temp directory to the project 'tmp' directory
+      const projectTmpDir = path.join(process.cwd(), 'tmp');
+      fs.mkdirSync(projectTmpDir, { recursive: true });
 
-          const filesToDelete = fs
-            .readdirSync(projectTmpDir)
-            .filter(
-              (file) =>
-                file.endsWith('.pdf') ||
-                file.endsWith('.docx') ||
-                file.endsWith('.txt') ||
-                file.endsWith('.csv'),
-            );
-          filesToDelete.forEach((file) => {
-            fs.unlinkSync(`${projectTmpDir}/${file}`);
-          });
+      const filesToDelete = fs
+        .readdirSync(projectTmpDir)
+        .filter(
+          (file) =>
+            file.endsWith('.pdf') ||
+            file.endsWith('.docx') ||
+            file.endsWith('.txt') ||
+            file.endsWith('.csv'),
+        );
+      filesToDelete.forEach((file) => {
+        fs.unlinkSync(`${projectTmpDir}/${file}`);
+      });
 
-          // const newFilePath = path.join(
-          //   projectTmpDir,
-          //   uploadedFile.originalFilename,
-          // );
-  
-          //CSV or XLSX convertion txt
-          // const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
-  
-          let header =[];
-          let context = [];
-          const dataStream = fs.createReadStream('combined.csv')
-          .pipe(csv());
+      //CSV or XLSX convertion txt
 
-          await new Promise<void>((resolve, reject) => {
-            dataStream
-            .on('data', (data) => {
-    
-              if (header.length < 1) {
-                header = Object.keys(data);
-                console.log('header>>>>', header[0]);
-              }
-              // console.log('data>>>', data);
-              for (let i = 0 ; i < header.length; i += 2) {
-                  context[`${header[i]}`] += data[`${header[i]}`] + ', ' + data[`${header[i+1]}`] + '\n';
-              }
-  
-              // if (data["1 file"] !== "") {
-                  
-              //   // console.log("test>>>",data['1 file']);
-              //   context += data[`1 file`] + ', ' +  data[`2 file`] + '\n'
-                
-              // }
-              // fs.appendFileSync('test.txt', Object.values(data).join(', ') + '\r\n');
-            })
-            .on('error', err => {
-              console.log('error>>>', err);
-            })
-            .on('end', () => {
-              console.log('context length>>>', Object.keys(context).length);
-              console.log('context keys', Object.keys(context));
-  
-              for (let i = 0; i < Object.keys(context).length ; i ++) {
-                const name_of_field = `${Object.keys(context)[i]}`;
-  
-                context[`${name_of_field}`] = context[`${name_of_field}`].replaceAll('\r', ' ');
-                fs.writeFileSync(path.join(projectTmpDir, name_of_field,), context[`${name_of_field}`]);
-                uploadedFiles.push(path.join(projectTmpDir, name_of_field));
-                console.log('CSV to txt');
-              }
-  
-              console.log('length>>>', uploadedFiles.length);
+      let header =[];
+      let context = [];
+      const dataStream = fs.createReadStream('combined.csv')
+      .pipe(csv());
 
-              resolve();
-              // context = context.replaceAll('\r', ' ');
-              // fs.writeFileSync(newFilePath.replace(ext, '.txt'), context);
-            });
+      await new Promise<void>((resolve, reject) => {
+        dataStream
+        .on('data', (data) => {
 
-          })
+          if (header.length < 1) {
+            header = Object.keys(data);
+            console.log('header>>>>', header[0]);
+          }
+          // console.log('data>>>', data);
+          for (let i = 0 ; i < header.length; i += 2) {
+              context[`${header[i]}`] += data[`${header[i]}`] + ', ' + data[`${header[i+1]}`] + '\n';
+          }
 
+        })
+        .on('error', err => {
+          console.log('error>>>', err);
+        })
+        .on('end', () => {
+          console.log('context length>>>', Object.keys(context).length);
+          console.log('context keys', Object.keys(context));
 
-          console.log('end!');
+          for (let i = 0; i < Object.keys(context).length ; i ++) {
+            const name_of_field = `${Object.keys(context)[i]}`;
+
+            context[`${name_of_field}`] = context[`${name_of_field}`].replaceAll('\r', ' ');
+            fs.writeFileSync(path.join(projectTmpDir, name_of_field,), context[`${name_of_field}`]);
+            uploadedFiles.push(path.join(projectTmpDir, name_of_field));
+            console.log('CSV to txt');
+          }
+
           console.log('length>>>', uploadedFiles.length);
 
-  
-          // break;
-  
-        // } else {
-        //   // In production, just use the file as is
-        //   uploadedFiles.push(uploadedFile.path);
-        // }
-      // }
+          resolve();
+        });
+
+      })
+
     } else {
       let index_of_file = 0;
       for (const file of Object.values(files) as UploadedFile[][]) {

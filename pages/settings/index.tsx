@@ -1,4 +1,3 @@
-import { PlusCircleIcon } from '@heroicons/react/20/solid';
 import React, { useState, useEffect, useCallback } from 'react';
 import { getItem, setItem } from '@/libs/localStorageKeys';
 import { useRouter } from 'next/router';
@@ -13,11 +12,8 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 
-import ToggleButton from './components/ToggleButton';
-
 import Pattern from './components/Pattern';
 import KeyForm from '@/components/keyform/KeyForm';
-import Button from '@/components/buttons/Button';
 
 export default function Settings() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
