@@ -321,7 +321,7 @@ export default function Home() {
               ...prevConversation.messages,
               {
                 type: 'apiMessage',
-                message: 'OpenAI API key is expired.',
+                message: 'OpenAI API key has expired.',
                 sourceDocs: data.sourceDocuments
                   ? data.sourceDocuments.map(
                       (doc: any) =>

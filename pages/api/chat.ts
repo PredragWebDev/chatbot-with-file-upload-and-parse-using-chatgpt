@@ -336,7 +336,7 @@ export default async function handler(
       
       Provide the results in JOSN format like this:
       [
-        original English sentence:"",
+        original sentence:"",
         original translation:"",
         modified translation:"",
         reason of correction:""
