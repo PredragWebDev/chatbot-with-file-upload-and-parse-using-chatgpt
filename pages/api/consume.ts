@@ -109,18 +109,18 @@ export default async function handler(
         });
       })
       // Split the PDF documents into smaller chunks
-      // const textSplitter = new RecursiveCharacterTextSplitter({
-      //   chunkSize: Number(chunkSize),
-      //   chunkOverlap: Number(overlapSize),
-      // });
+      const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: Number(chunkSize),
+        chunkOverlap: Number(overlapSize),
+      });
   
-      // // OpenAI embeddings for the document chunks
-      // const embeddings = new OpenAIEmbeddings({
-      //   openAIApiKey: openAIapiKey as string,
-      // });
+      // OpenAI embeddings for the document chunks
+      const embeddings = new OpenAIEmbeddings({
+        openAIApiKey: openAIapiKey as string,
+      });
   
-      // // Get the Pinecone index with the given name
-      // const index = pinecone.Index(targetIndex);
+      // Get the Pinecone index with the given name
+      const index = pinecone.Index(targetIndex);
   
       // Store the document chunks in Pinecone with their embeddings
   
