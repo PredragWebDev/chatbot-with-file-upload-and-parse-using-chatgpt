@@ -62,6 +62,22 @@ export default async function handler(
     } else {
       fs.mkdirSync(currentPath);
     }
+
+    // Split the PDF documents into smaller chunks
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: Number(chunkSize),
+      chunkOverlap: Number(overlapSize),
+    });
+
+    // OpenAI embeddings for the document chunks
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: openAIapiKey as string,
+    });
+
+    // Get the Pinecone index with the given name
+    const index = pinecone.Index(targetIndex);
+
+    // Store the document chunks in Pinecone with their embeddings
     
     
     try {
@@ -83,6 +99,8 @@ export default async function handler(
           // const modifiedFileContent = filecontent.replace('"', "'");
   
           const docs = await textSplitter.splitDocuments(filecontent);
+
+          console.log('docs okay?');
   
           fs.writeFileSync(currentPath + '\\' + file, JSON.stringify(docs));
   
@@ -91,6 +109,8 @@ export default async function handler(
             namespace: namespaceName as string,
             textKey: 'text',
           });
+
+          console.log('pinecone store okay?');
           
         }
         // Delete the PDF, DOCX, TXT, CSV files
@@ -108,21 +128,7 @@ export default async function handler(
           fs.unlinkSync(`${filePath}/${file}`);
         });
       })
-      // Split the PDF documents into smaller chunks
-      const textSplitter = new RecursiveCharacterTextSplitter({
-        chunkSize: Number(chunkSize),
-        chunkOverlap: Number(overlapSize),
-      });
-  
-      // OpenAI embeddings for the document chunks
-      const embeddings = new OpenAIEmbeddings({
-        openAIApiKey: openAIapiKey as string,
-      });
-  
-      // Get the Pinecone index with the given name
-      const index = pinecone.Index(targetIndex);
-  
-      // Store the document chunks in Pinecone with their embeddings
+      
   
       res.status(200).json({ message: 'Data ingestion complete' });
     } catch (error) {
