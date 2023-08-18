@@ -59,9 +59,18 @@ export default async function handler(
     let index_of_file = 0;
     const uploadedFiles: string[] = [];
 
+    //------------------------------------------//
+    const filenames = Object.values(files)
+      .flat()
+      .map(file => file.originalFilename)
+      .sort((a, b) => a.localeCompare(b));
+
+      console.log('filenames>>>>>>', filenames);
     /// combine uploaded files to one csv
     let data = {};
-    for (const file of Object.values(files) as UploadedFile[][]) {
+    // for (const file of Object.values(files) as UploadedFile[][]) {
+    for (const filename of filenames) {
+      const file = Object.values(files).find(file => file[0].originalFilename === filename);
       if (!file || file.length === 0) {
         continue;
       }
@@ -69,6 +78,8 @@ export default async function handler(
       const uploadedFile = file[0] as UploadedFile;
 
       ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
+
+      console.log('files>>>', uploadedFile.originalFilename);
 
       if (ext === '.csv') {
 

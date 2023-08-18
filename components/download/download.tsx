@@ -47,14 +47,14 @@ export const DownLoad_Modal = () => {
         console.log("download???");
         checkBox.map(async (box) => {
             if (box.isChecked) {
-                const response = await fetch(`http://localhost:3000/result/${box.label}`);
+                // const response = await fetch(`http://localhost:3000/result/${box.label}`);
 
-                console.log('response????', response);
+                // console.log('response????', response);
 
-                const blob = await response.blob();
+                // const blob = await response.blob();
 
                 // const url = URL.createObjectURL(blob);
-                const url = `http://localhost:3000/result/${box.label}`
+                const url = `/result/${box.label}`
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = box.label;

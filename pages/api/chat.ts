@@ -378,7 +378,6 @@ export default async function handler(
         fs.unlink(currentPath + '\\resume.txt', (err) => {
           if (err) {
             console.log(err);
-            return;
           }
           console.log('File deleted successfully!')
         });
@@ -526,6 +525,10 @@ export default async function handler(
           }
   
         }
+      }
+
+      if ( result === '') {
+        result = "Don't exist the data in this namespace, please recreate the namespace!";
       }
       
 

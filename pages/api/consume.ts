@@ -55,6 +55,8 @@ export default async function handler(
       filesToDelete.forEach((file) => {
         fs.unlinkSync(`${currentPath}/${file}`);
       });
+  } else {
+    fs.mkdirSync(currentPath);
   }
   
   
