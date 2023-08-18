@@ -436,7 +436,7 @@ export default async function handler(
                   signal
                 })
           
-                console.log('response>>>>', response.text);
+                // console.log('response>>>>', response.text);
           
                 const jsonData = JSON.parse(response.text);
     

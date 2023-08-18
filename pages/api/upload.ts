@@ -216,7 +216,7 @@ export default async function handler(
 
           if (header.length < 1) {
             header = Object.keys(data);
-            console.log('header>>>>', header[0]);
+            console.log('header>>>>', header);
           }
           // console.log('data>>>', data);
           for (let i = 0 ; i < header.length; i += 2) {
