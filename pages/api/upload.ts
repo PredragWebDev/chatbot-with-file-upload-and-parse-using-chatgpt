@@ -92,9 +92,6 @@ export default async function handler(
   
         const columnData = results.data.map((row: { [x: string]: any; }) => {
           let tempResult = "";
-          console.log('row>>>', row[0]);
-          console.log('row>>>', row.length);
-
           
           for (let i = 0 ; i < row.length; i ++) {
 
@@ -160,7 +157,7 @@ export default async function handler(
             break;
         }
   
-        console.log("filecontent", filecontent);
+        // console.log("filecontent", filecontent);
 
         data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = filecontent.split('\n');
         index_of_file++;
@@ -234,6 +231,8 @@ export default async function handler(
           for (let i = 0; i < Object.keys(context).length ; i ++) {
             const name_of_field = `${Object.keys(context)[i]}`;
 
+            console.log('name of field>>>', name_of_field);
+            
             context[`${name_of_field}`] = context[`${name_of_field}`].replaceAll('\r', ' ');
             fs.writeFileSync(path.join(projectTmpDir, name_of_field,), context[`${name_of_field}`]);
             uploadedFiles.push(path.join(projectTmpDir, name_of_field));
