@@ -60,11 +60,25 @@ export const DownLoad_Modal = () => {
                 link.download = box.label;
                 link.click();
 
-                // setTimeout(() => {
+                // // setTimeout(() => {
                     
-                //     URL.revokeObjectURL(url);
-                // }, 1000);
+                // //     URL.revokeObjectURL(url);
+                // // }, 1000);
 
+                // const del = await fetch('/api/download', {
+                //     method: 'POST',
+                //     headers: {
+                //       'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({
+                //         filename:box.label
+                //     }),
+                // });
+            }
+        })
+        checkBox.map(async (box) => {
+            if (box.isChecked) {
+                
                 const del = await fetch('/api/download', {
                     method: 'POST',
                     headers: {
