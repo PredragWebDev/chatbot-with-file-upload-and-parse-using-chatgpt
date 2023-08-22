@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import path, { resolve } from 'path';
 import fs from 'fs-extra';
 import pdf from 'pdf-parse';
+import { result } from 'lodash';
 
 interface UploadedFile {
   slice(arg0: number, arg1: number): unknown;
@@ -91,18 +92,24 @@ export default async function handler(
           })
   
         const columnData = results.data.map((row: { [x: string]: any; }) => {
-          let tempResult = "";
-          
-          for (let i = 0 ; i < row.length; i ++) {
+          let tempResult = [];
+
+          console.log('length>>>', row.length);
+          for (let i = 1 ; i <= row.length; i ++) {
 
             if (row.length === 1) {
-              tempResult += row[i];
+              tempResult.push(row[i]);
             } else {
 
-              tempResult += row[i] + ', '
+              tempResult.push(row[0] + ', ' + row[i]);
             }
           }
-          return tempResult;
+          if (row.length >= 1) {
+
+            return tempResult;
+          } else {
+            return tempResult;
+          }
         })
   
         data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData;
@@ -119,21 +126,29 @@ export default async function handler(
         const columnName = Object.keys(jsonData[0])[0];
       
         const columnData = jsonData.map((row) => {
-          let tempResult = "";
+          let tempResult = [];
 
-          for (let i = 0 ; i < row.length; i ++) {
+          console.log('length>>>', row.length);
+          for (let i = 1 ; i <= row.length; i ++) {
 
             if (row.length === 1) {
-              tempResult += row[i];
+              tempResult.push(row[i]);
             } else {
 
-              tempResult += row[i] + ', '
+              tempResult.push(row[0] + ', ' + row[i]);
             }
           }
-          return tempResult;
+          if (row.length >= 1) {
+
+            return tempResult;
+          } else {
+            return tempResult;
+          }
         });
+
+        console.log('colunm data>>>', columnData.flat());
       
-        data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData;
+        data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData.flat();
       
         index_of_file++;
       } else {
@@ -281,13 +296,19 @@ export default async function handler(
           const ext = path.extname(uploadedFile.originalFilename).toLocaleLowerCase();
   
           let context = "";
+          let header =[];
           fs.createReadStream('combined.csv')
           .pipe(csv())
           .on('data', (data) => {
   
+            if (header.length < 1) {
+              header = Object.keys(data);
+              console.log('header>>>>', header);
+            }
+
             if (data["1 file"] !== "") {
   
-              context += data[`${index_of_file} file`] + '\n'
+              context += data[`${header[0]}`] + '\n'
             }
           })
           .on('end', () => {

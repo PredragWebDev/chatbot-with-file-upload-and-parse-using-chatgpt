@@ -132,6 +132,11 @@ function savaDataToPDF(data, filename) {
 function saveDataToDocx(data: any, filename: string) {
   try {
 
+    const font = {
+      name: 'Calibri',
+      size: 20,
+    };
+
     const doc = new Document({
       sections: [
         {
@@ -175,7 +180,7 @@ function saveDataToDocx(data: any, filename: string) {
                 }),
                 // Table data rows
                 ...data.map(row => new TableRow({
-                  children: Object.values(row).map(value => new TableCell({children:[new Paragraph(value)]})),
+                  children: Object.values(row).map(value => new TableCell({children:[new Paragraph({text: value, font: font})]})),
                 })),
               ],
             }),

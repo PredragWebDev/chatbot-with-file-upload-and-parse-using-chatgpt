@@ -38,3 +38,10 @@
 
 ## Deploy on Cloudmos (res/deploy_guide.mp4)
 
+## description
+
+this is to chat with content of doc.
+can use such files(pdf, docx, xlsx, csv, html...)
+to build this I used the Next.js, Typescript, Langchain, Chatgpt, Pinecone...
+
+
