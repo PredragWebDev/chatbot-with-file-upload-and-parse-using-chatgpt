@@ -132,18 +132,13 @@ export default async function handler(
           for (let i = 1 ; i <= row.length; i ++) {
 
             if (row.length === 1) {
-              tempResult.push(row[i]);
+              tempResult.push(row[0]);
             } else {
 
               tempResult.push(row[0] + ', ' + row[i]);
             }
           }
-          if (row.length >= 1) {
-
             return tempResult;
-          } else {
-            return tempResult;
-          }
         });
 
         console.log('colunm data>>>', columnData.flat());

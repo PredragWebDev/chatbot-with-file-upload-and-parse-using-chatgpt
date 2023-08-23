@@ -11,7 +11,7 @@ interface HeaderProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
+const Header: React.FC<HeaderProps> = ({ setSidebarOpen, pineconeIndexName }) => {
   const router = useRouter();
   const handleDownload = async () => {
     const res = await axios.post('/api/download');
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                         }}
                         
                     >
-                        <DownLoad_Modal/>
+                        <DownLoad_Modal pineconeIndexName = {pineconeIndexName}/>
                     </Popover>
                 </div>
                 

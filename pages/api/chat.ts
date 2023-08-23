@@ -484,11 +484,13 @@ export default async function handler(
     
             if (true) {
   
-              const resultPath = process.cwd() + '\\public\\result';
+              const resultPath = process.cwd() + `\\public\\result\\${pineconeApiKey}`;
+
+              fs.mkdirSync(resultPath, {recursive:true});
       
-              if (!fs.existsSync(resultPath)) {
-                fs.mkdirSync(resultPath);
-              }
+              // if (!fs.existsSync(resultPath)) {
+              //   fs.mkdirSync(resultPath);
+              // }
               
               switch (filetype) {
                 case 'xlsx':

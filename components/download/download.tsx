@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from "react";
 
-export const DownLoad_Modal = () => {
+export const DownLoad_Modal = (props) => {
     const [resultFiles, setResultFiles] = useState([]);
 
     const [checkBox, setCheckBox] = useState([]);
 
+    const [pineconeIndexName, setPineconeIndexName] = useState('');
+
     const fetchData = async () => {
-        const response = await fetch('/api/resultFiles');
+        // const pineconeIndexName = props.pineconeIndexName;
+        setPineconeIndexName(props.pineconeIndexName);
+        
+        const response = await fetch('/api/resultFiles', {
+            method:'POST',
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify({
+                pineconeIndexName:props.pineconeIndexName,
+            })
+        });
         const data = await response.json();
 
         setResultFiles(data.resultFiles);
@@ -54,7 +65,8 @@ export const DownLoad_Modal = () => {
                 // const blob = await response.blob();
 
                 // const url = URL.createObjectURL(blob);
-                const url = `/result/${box.label}`
+                const url = `/result/${pineconeIndexName}/${box.label}`;
+                console.log("url>>>>", url);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = box.label;
@@ -85,7 +97,8 @@ export const DownLoad_Modal = () => {
                       'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        filename:box.label
+                        filename:box.label,
+                        pineconeIndexName
                     }),
                 });
             }

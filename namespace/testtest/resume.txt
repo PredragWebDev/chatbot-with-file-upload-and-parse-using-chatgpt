@@ -1,0 +1,1 @@
+[{"savedFile":"D:\\Development\\Chatgpt\\chatgpt-lanchain-next\\chatbot-with-file-upload-and-parse-using-chatgpt\\namespace\\testtest\\translations_WEB-18411_FT (1).txt","index":0,"content":[]}]

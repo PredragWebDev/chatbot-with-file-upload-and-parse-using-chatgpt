@@ -15,8 +15,8 @@ export default async function download(req, res) {
 
   try {
 
-    const path = process.cwd() +'\\public\\result\\'
-    const {filename} = req.body // replace with your file's path
+    const {filename, pineconeIndexName} = req.body // replace with your file's path
+    const path = process.cwd() +'\\public\\result\\' + pineconeIndexName + '\\';
 
     if (fs.existsSync(path + filename)) {
 
