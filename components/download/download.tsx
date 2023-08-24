@@ -11,16 +11,19 @@ export const DownLoad_Modal = (props) => {
         // const pineconeIndexName = props.pineconeIndexName;
         setPineconeIndexName(props.pineconeIndexName);
         
-        const response = await fetch('/api/resultFiles', {
-            method:'POST',
-            headers: {'Content-Type': 'application/json',},
-            body: JSON.stringify({
-                pineconeIndexName:props.pineconeIndexName,
-            })
-        });
-        const data = await response.json();
+        if (props.pineconeIndexName) {
 
-        setResultFiles(data.resultFiles);
+            const response = await fetch('/api/resultFiles', {
+                method:'POST',
+                headers: {'Content-Type': 'application/json',},
+                body: JSON.stringify({
+                    pineconeIndexName:props.pineconeIndexName,
+                })
+            });
+            const data = await response.json();
+    
+            setResultFiles(data.resultFiles);
+        }
     };
 
     const makeCheckbox = async () => {
@@ -58,13 +61,7 @@ export const DownLoad_Modal = (props) => {
         console.log("download???");
         checkBox.map(async (box) => {
             if (box.isChecked) {
-                // const response = await fetch(`http://localhost:3000/result/${box.label}`);
 
-                // console.log('response????', response);
-
-                // const blob = await response.blob();
-
-                // const url = URL.createObjectURL(blob);
                 const url = `/result/${pineconeIndexName}/${box.label}`;
                 console.log("url>>>>", url);
                 const link = document.createElement('a');
@@ -72,22 +69,13 @@ export const DownLoad_Modal = (props) => {
                 link.download = box.label;
                 link.click();
 
-                // // setTimeout(() => {
-                    
-                // //     URL.revokeObjectURL(url);
-                // // }, 1000);
-
-                // const del = await fetch('/api/download', {
-                //     method: 'POST',
-                //     headers: {
-                //       'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify({
-                //         filename:box.label
-                //     }),
-                // });
             }
         })
+        
+        props.closeDonwloadModal();
+    }
+
+    const handleDelete = () => {
         checkBox.map(async (box) => {
             if (box.isChecked) {
                 
@@ -103,6 +91,8 @@ export const DownLoad_Modal = (props) => {
                 });
             }
         })
+
+        props.closeDonwloadModal();
     }
     
     return (
@@ -115,11 +105,19 @@ export const DownLoad_Modal = (props) => {
                     </label>
                 )
             })}
-            <button className=" mt-4 inline-flex justify-center items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={handleDownload}
-            >
-                Download
-            </button>
+
+            <div className=" flex justify-between">
+                <button className=" mt-4 inline-flex justify-center items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={handleDownload}
+                >
+                    Download
+                </button>
+                <button className=" mt-4 inline-flex justify-center items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={handleDelete}
+                >
+                    Delete
+                </button>
+            </div>
         </div>
     )
 };

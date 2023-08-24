@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen, pineconeIndexName }) =>
                         }}
                         
                     >
-                        <DownLoad_Modal pineconeIndexName = {pineconeIndexName}/>
+                        <DownLoad_Modal pineconeIndexName = {pineconeIndexName} closeDonwloadModal = {popupState.close}/>
                     </Popover>
                 </div>
                 

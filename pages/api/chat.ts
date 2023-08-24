@@ -334,6 +334,8 @@ export default async function handler(
         modified translation:"",
         reason of correction:""
       ]
+
+      Sentence order in input and output must be the same.
       `
     );
 
