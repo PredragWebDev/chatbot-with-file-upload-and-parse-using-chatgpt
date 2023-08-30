@@ -486,7 +486,11 @@ export default async function handler(
     
             if (true) {
   
-              const resultPath = process.cwd() + `\\public\\result\\${pineconeApiKey}`;
+              const resultPath_temp = process.cwd() + `\\public\\result\\${pineconeApiKey}`;
+
+              fs.mkdirSync(resultPath_temp, {recursive:true});
+
+              const resultPath = resultPath_temp + '\\' + selectedNamespace;
 
               fs.mkdirSync(resultPath, {recursive:true});
       

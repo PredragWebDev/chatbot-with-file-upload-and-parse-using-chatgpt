@@ -15,8 +15,11 @@ export default async function download(req, res) {
 
   try {
 
-    const {filename, pineconeIndexName} = req.body // replace with your file's path
-    const path = process.cwd() +'\\public\\result\\' + pineconeIndexName + '\\';
+    const {filename, pineconeIndexName, selectedNamespace} = req.body // replace with your file's path
+    const path = process.cwd() +'\\public\\result\\' + pineconeIndexName + '\\' + selectedNamespace + '\\';
+
+    console.log('file name>>>>', filename);
+    console.log('selected namespace>>>', selectedNamespace);
 
     if (fs.existsSync(path + filename)) {
 

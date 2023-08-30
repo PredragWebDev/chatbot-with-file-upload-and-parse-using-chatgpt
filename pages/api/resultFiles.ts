@@ -32,15 +32,27 @@ export default async function handler(
 
     await runMiddleware(req, res, cors)
 
-    const { pineconeIndexName } = req.body;
+    const { pineconeIndexName, selectedNamespace, sortBy } = req.body;
 
-    const filePath_to_download = process.cwd() + '\\public\\result\\' + pineconeIndexName;
+    const filePath_to_download = process.cwd() + '\\public\\result\\' + pineconeIndexName + '\\' + selectedNamespace;
 
     fs.readdir(filePath_to_download,async (error, resultFiles) => {
         if (error) {
             console.error('Error reading directory:', error);
             return;
         }
+
+        if (sortBy === "time") {
+
+          resultFiles.sort((a, b) => {
+            const fileA = fs.statSync(`${filePath_to_download}/${a}`);
+            const fileB = fs.statSync(`${filePath_to_download}/${b}`);
+            return fileA.mtime.getTime() - fileB.mtime.getTime();
+          });
+        } else {
+          resultFiles.sort();
+        }
+
         res
         .status(200)
         // .json({ text: response.text, sourceDocuments: response.sourceDocuments });

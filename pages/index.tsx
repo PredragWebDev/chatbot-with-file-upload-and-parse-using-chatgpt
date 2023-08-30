@@ -493,7 +493,7 @@ export default function Home() {
         </div>
 
         <div className="h-screen lg:pl-72">
-          <Header setSidebarOpen={setSidebarOpen} pineconeIndexName = {pineconeApiKey} />
+          <Header setSidebarOpen={setSidebarOpen} pineconeIndexName = {pineconeApiKey} selectedNamespace = {selectedNamespace} />
 
           <main className="flex flex-col">
             {selectedNamespace !== '' && nameSpaceHasChats ? (

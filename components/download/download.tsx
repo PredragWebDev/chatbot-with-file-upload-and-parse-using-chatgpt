@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 
 export const DownLoad_Modal = (props) => {
     const [resultFiles, setResultFiles] = useState([]);
-
+    
     const [checkBox, setCheckBox] = useState([]);
-
+    
     const [pineconeIndexName, setPineconeIndexName] = useState('');
-
-    const fetchData = async () => {
+    
+    const [selectedValue, setSelectedValue] = useState('time');
+    const fetchData = async (sortBy) => {
         // const pineconeIndexName = props.pineconeIndexName;
         setPineconeIndexName(props.pineconeIndexName);
         
@@ -18,6 +19,9 @@ export const DownLoad_Modal = (props) => {
                 headers: {'Content-Type': 'application/json',},
                 body: JSON.stringify({
                     pineconeIndexName:props.pineconeIndexName,
+                    selectedNamespace:props.selectedNamespace,
+                    sortBy:sortBy
+                    
                 })
             });
             const data = await response.json();
@@ -25,6 +29,13 @@ export const DownLoad_Modal = (props) => {
             setResultFiles(data.resultFiles);
         }
     };
+
+    const handleSortIndex = (value) => {
+
+        console.log('value>>>', value);
+        setSelectedValue(value);
+        fetchData(value);
+    }
 
     const makeCheckbox = async () => {
         const temp = resultFiles.map((file, index) => ({
@@ -37,7 +48,7 @@ export const DownLoad_Modal = (props) => {
 
     }
     useEffect(() => {
-        fetchData();
+        fetchData('time');
     }, [])
 
     useEffect (() => {
@@ -62,7 +73,7 @@ export const DownLoad_Modal = (props) => {
         checkBox.map(async (box) => {
             if (box.isChecked) {
 
-                const url = `/result/${pineconeIndexName}/${box.label}`;
+                const url = `/result/${pineconeIndexName}/${props.selectedNamespace}/${box.label}`;
                 console.log("url>>>>", url);
                 const link = document.createElement('a');
                 link.href = url;
@@ -86,7 +97,8 @@ export const DownLoad_Modal = (props) => {
                     },
                     body: JSON.stringify({
                         filename:box.label,
-                        pineconeIndexName
+                        pineconeIndexName,
+                        selectedNamespace:props.selectedNamespace
                     }),
                 });
             }
@@ -97,6 +109,19 @@ export const DownLoad_Modal = (props) => {
     
     return (
         <div className="w-60 bg-gray-800 text-white grid p-4">
+
+            <div>
+                <label className="mr-2"> Sort By :</label>
+                <label className='text-white mr-1'>
+                    <input type="radio" className='mr-2' value="name" checked={selectedValue === 'name'} onChange={(e) => { handleSortIndex(e.target.value)}} />
+                    Name
+                </label>
+                <label className='text-white'>
+                    <input type="radio" className='mr-2' value="time" checked={selectedValue === 'time'} onChange={(e) => { handleSortIndex(e.target.value)}} />
+                    Time
+                </label>
+            </div>
+            <div className="border-b-2 mb-2"></div>
             {checkBox.map((box, index) => {
                 return (
                     <label key = {box.id}>

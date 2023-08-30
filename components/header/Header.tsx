@@ -9,9 +9,11 @@ import Popover from '@mui/material/Popover';
 
 interface HeaderProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  pineconeIndexName:string;
+  selectedNamespace:string;
 }
 
-const Header: React.FC<HeaderProps> = ({ setSidebarOpen, pineconeIndexName }) => {
+const Header: React.FC<HeaderProps> = ({ setSidebarOpen, pineconeIndexName, selectedNamespace }) => {
   const router = useRouter();
   const handleDownload = async () => {
     const res = await axios.post('/api/download');
@@ -80,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen, pineconeIndexName }) =>
                         }}
                         
                     >
-                        <DownLoad_Modal pineconeIndexName = {pineconeIndexName} closeDonwloadModal = {popupState.close}/>
+                        <DownLoad_Modal pineconeIndexName = {pineconeIndexName} closeDonwloadModal = {popupState.close} selectedNamespace = {selectedNamespace} />
                     </Popover>
                 </div>
                 
