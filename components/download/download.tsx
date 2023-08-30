@@ -122,14 +122,20 @@ export const DownLoad_Modal = (props) => {
                 </label>
             </div>
             <div className="border-b-2 mb-2"></div>
-            {checkBox.map((box, index) => {
-                return (
-                    <label key = {box.id}>
-                        <input type="checkbox" id={box.id} checked = {box.isChecked} onChange={handleCheckboxChange} />
-                        {box.label}
-                    </label>
-                )
-            })}
+
+            {checkBox.length > 0 ? (
+                checkBox.map((box, index) => {
+                    return (
+                        <label key = {box.id}>
+                            <input type="checkbox" id={box.id} checked = {box.isChecked} onChange={handleCheckboxChange} />
+                            {box.label}
+                        </label>
+                    )
+                })
+            ):(
+                'No files'
+            )}
+            
 
             <div className=" flex justify-between">
                 <button className=" mt-4 inline-flex justify-center items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
