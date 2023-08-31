@@ -14,6 +14,7 @@ import process from 'process';
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
+import { tableCellClasses } from '@mui/material';
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -62,9 +63,16 @@ function savaDataToTXT(data, filename) {
   
   // fs.writeFileSync(filename, "the result \n");
   try {
-
+    const keys = Object.keys(data[0]);
     data.forEach(((node) => {
-      result += `${node['original source sentence']}, ${node['original translation']}, ${node['modified translation']}, ${node['reason of correction']}\n`;
+      console.log("keys>>>>>>>>",keys);
+      // const keys = Object.keys(node);
+      keys.map((key) => {
+        result += node[key] + ','
+      })
+      result += '\n';
+
+      // result += `${node['original source sentence']}, ${node['original translation']}, ${node['modified translation']}, ${node['reason of correction']}\n`;
     }))
 
     fs.writeFileSync(filename, result);
@@ -100,7 +108,10 @@ function savaDataToPDF(data, filename) {
     doc.text("the result", x, y);
     // Write the result header
 
-    const headers = [['original source sentences', 'original translation', 'modified translation', 'reason of correction']];
+    // const headers = [['original source sentences', 'original translation', 'modified translation', 'reason of correction']];
+    const keys = Object.keys(data[0]);
+
+    const headers = [keys];
 
     let index = 0;
     let intervalY = doc.internal.getFontSize() + 5;
@@ -108,7 +119,13 @@ function savaDataToPDF(data, filename) {
 
     let rows = [];
     data.forEach((node) => {
-      rows.push([node['original source sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
+      // headers.map((key) => {
+      //   rows.push(node[key])
+      // })
+
+      console.log(keys.map(key => node[key]))
+      rows.push(keys.map(key => node[key]));
+      // rows.push([node['original source sentence'], node['original translation'], node['modified translation'], node['reason of correction']])
     
     });
 
@@ -137,6 +154,8 @@ function saveDataToDocx(data: any, filename: string) {
       size: 20,
     };
 
+    const keys = Object.keys(data[0]);
+
     const doc = new Document({
       sections: [
         {
@@ -155,28 +174,13 @@ function saveDataToDocx(data: any, filename: string) {
               rows: [
                 // Table header row
                 new TableRow({
-                  children: [
+                  children: keys.map((key) => (
                     new TableCell({
                       children: [
-                        new Paragraph("original source sentence"), // Header cell content
+                        new Paragraph(key),
                       ],
-                    }),
-                    new TableCell({
-                      children: [
-                        new Paragraph("original translation"), // Header cell content
-                      ],
-                    }),
-                    new TableCell({
-                      children: [
-                        new Paragraph("modified translation"), // Header cell content
-                      ],
-                    }),
-                    new TableCell({
-                      children: [
-                        new Paragraph("reason of correction"), // Header cell content
-                      ],
-                    }),
-                  ],
+                    })
+                  )),
                 }),
                 // Table data rows
                 ...data.map(row => new TableRow({
@@ -205,12 +209,24 @@ function saveDataToHTML(data, filename) {
     const header = "<h1>the result</h1>\n";
   
     // Create the table headers
-    const tableHeaders = "<tr><th>original source sentences</th><th>original translation</th><th>modified translation</th><th>reason of correction</th></tr>\n";
+    const keys = Object.keys(data[0]);
+    let tableHeaders = "<tr>"
+    keys.map((key) => {
+      tableHeaders += `<td>${key}</td>`
+    })
+    tableHeaders += '\n';
+
+    // const tableHeaders = "<tr><th>original source sentences</th><th>original translation</th><th>modified translation</th><th>reason of correction</th></tr>\n";
   
     // Create the rows for the table
     let rows = '';
     data.forEach((node) => {
-      rows += `<tr><td>${node['original source sentence']}</td><td>${node['original translation']}</td><td>${node['modified translation']}</td><td>${node['reason of correction']}</td></tr>\n`;
+      rows += "<tr>"
+      keys.map((key) => {
+        rows += `<td>${node[key]}</td>`;
+      })
+      rows += '</tr>\n';
+      // rows += `<tr><td>${node['original source sentence']}</td><td>${node['original translation']}</td><td>${node['modified translation']}</td><td>${node['reason of correction']}</td></tr>\n`;
     });
   
     // Combine the header, table headers, and rows into an HTML table
