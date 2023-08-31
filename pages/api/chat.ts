@@ -322,20 +322,10 @@ export default async function handler(
     const prompt = PromptTemplate.fromTemplate(
       `{context}
       -----------------
-      The sentences above are sentences with the same content in two languages.
-      Check if a translation exists for every sentence, and do the following only for sentences with a translation.
       
       {question}
       
-      Provide the results in JOSN format like this:
-      [
-        original source sentence:"",
-        original translation:"",
-        modified translation:"",
-        reason of correction:""
-      ]
 
-      Sentence order in input and output must be the same.
       `
     );
 
