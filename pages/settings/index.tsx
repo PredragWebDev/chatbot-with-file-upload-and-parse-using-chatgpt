@@ -52,7 +52,7 @@ export default function Settings() {
   const [selectedValue, setSelectedValue] = useState('complex');
   const router = useRouter();
 
-  const fetchNamespaces = async (openAIapiKey: string, pineconeApiKey: string, pineconeEnvironment: string, pineconeIndexName: str) => {
+  const fetchNamespaces = async (openAIapiKey: string, pineconeApiKey: string, pineconeEnvironment: string, pineconeIndexName: string) => {
     try {
       const response = await fetch(`/api/getNamespaces`, {
         headers: {
@@ -91,7 +91,7 @@ export default function Settings() {
     }
   };
 
-  const onKeyChange = (storageKey, keyValue) => {
+  const onKeyChange = (storageKey:string, keyValue:string) => {
     switch(storageKey) {
       case "openAIapiKey":
         setOpenAIapiKey(keyValue);
@@ -232,6 +232,8 @@ export default function Settings() {
         message: error.message,
         customString: 'An error occured trying to upload files',
       });
+
+      setLoading(false);
     }
   };
 
@@ -509,6 +511,11 @@ export default function Settings() {
               >
                 <input type="radio" className='mr-2' value="separate" checked={selectedValue === 'separate'} onChange={(e) => {setSelectedValue(e.target.value)}} />
                 Separate
+              </label>
+              <label className='text-white'
+              >
+                <input type="radio" className='mr-2' value="1-multi" checked={selectedValue === '1-multi'} onChange={(e) => {setSelectedValue(e.target.value)}} />
+                1-multi
               </label>
               <button
                 className="rounded-md bg-indigo-500 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-center text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"

@@ -176,9 +176,31 @@ export default async function handler(
     }
 
     if (fields.inputMethod[0] === '1-multi') {
+      console.log('input method>>>>', fields.inputMethod[0]);
+
       const keys = Object.keys(data);
 
+      console.log('keys>>>', keys);
       
+      let tempData = {};
+
+      if (keys.find(key => key.split(".").slice(0, -1).join(".") === 'original')) {
+        keys.map((key) => {
+          if (key.split('.').slice(0,-1).join('.') !== 'original') {
+
+            const extension = key.split('.').pop();
+            console.log('extension>>>>', extension);
+            console.log('file name>>>>', `original.${extension}`);
+  
+            tempData[`original for ${key}`] = data[`original.${extension}`];
+            tempData[key] = data[key];
+          }
+        })
+
+        data = tempData;
+      } else {
+        return res.status(400).json({ error: 'No original file' });
+      }
     }
 
     const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
@@ -238,14 +260,14 @@ export default async function handler(
           }
           // console.log('data>>>', data);
 
-          if (fields.inputMethod[0] === 'separate') {
+          if (fields.inputMethod[0] === 'complex') {
 
-            for (let i = 0 ; i < header.length; i += 2) {
-                context[`${header[i]}`] += data[`${header[i]}`] + ', ' + data[`${header[i+1]}`] + '\n';
-            }
-          } else {
             for (let i = 0 ; i < header.length; i ++) {
                 context[`${header[i]}`] += data[`${header[i]}`] + '\n';
+            }
+          } else {
+            for (let i = 0 ; i < header.length; i += 2) {
+                context[`${header[i]}`] += data[`${header[i]}`] + ', ' + data[`${header[i+1]}`] + '\n';
             }
           }
 
