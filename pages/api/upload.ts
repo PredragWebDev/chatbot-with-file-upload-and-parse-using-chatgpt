@@ -8,7 +8,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import path, { resolve } from 'path';
 import fs from 'fs-extra';
 import pdf from 'pdf-parse';
-import { result } from 'lodash';
+// import { result } from 'lodash';
 
 interface UploadedFile {
   slice(arg0: number, arg1: number): unknown;
@@ -175,6 +175,12 @@ export default async function handler(
 
     }
 
+    if (fields.inputMethod[0] === '1-multi') {
+      const keys = Object.keys(data);
+
+      
+    }
+
     const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
     let rows = Array(maxLen).fill().map(() => ({}));
 
@@ -187,12 +193,10 @@ export default async function handler(
       });
     }
 
-
     const json2csvParser = new Parser({ fields: Object.keys(data) });
     const csvfile = json2csvParser.parse(rows);
 
     console.log('row>>>', csvfile);
-
 
     fs.writeFileSync('combined.csv', csvfile, 'utf8');
 
