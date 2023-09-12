@@ -353,7 +353,7 @@ export default async function handler(
     let isExpired = false;
 
     let resume = false;
-    let saved_content = [];
+    let saved_content: never[] = [];
     let saved_index = 0;
     let saved_file_name = '';
 
@@ -412,7 +412,7 @@ export default async function handler(
             const docs = fs.readFileSync(currentPath + '\\' + file).toString();
             const myDocs = JSON.parse(docs);
     
-            let responseResult = saved_content;
+            let responseResult: never[] = saved_content;
     
             const chain = new LLMChain({llm:model, prompt:prompt});
     
@@ -441,10 +441,7 @@ export default async function handler(
     
                 console.log('error is here?');
               }
-              catch (error) {
-    
-                console.log('error>>>>', error.name);
-                console.log('error message', error.message);
+              catch (error:unknown) {
   
                 if (error.message === 'Request failed with status code 429') {
   
