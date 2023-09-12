@@ -15,6 +15,7 @@ import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType } from "docx";
 import 'jspdf-autotable';
 import { tableCellClasses } from '@mui/material';
+import { Json } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -39,7 +40,7 @@ function runMiddleware(
   })
 }
 
-function saveDataToXlsx(data, filename) {
+function saveDataToXlsx(data:Json, filename:string) {
 
   try {
     const worksheet = xlsx.utils.json_to_sheet(data);
@@ -58,16 +59,15 @@ function saveDataToXlsx(data, filename) {
   }
 }
 
-function savaDataToTXT(data, filename) {
+function savaDataToTXT(data:Json, filename:string) {
   let result = 'the result\n';
   
   // fs.writeFileSync(filename, "the result \n");
   try {
     const keys = Object.keys(data[0]);
-    data.forEach(((node) => {
+    data.forEach(((node:Array<{[key:string]:unknown}>) => {
       console.log("keys>>>>>>>>",keys);
-      // const keys = Object.keys(node);
-      keys.map((key) => {
+      keys.map((key:number|string) => {
         result += node[key] + ','
       })
       result += '\n';
