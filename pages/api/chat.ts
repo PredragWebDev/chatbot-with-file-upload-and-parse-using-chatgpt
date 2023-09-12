@@ -16,6 +16,7 @@ import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, Align
 import 'jspdf-autotable';
 import { tableCellClasses } from '@mui/material';
 import { Json } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
+import 'jspdf-autotable';
 
 const cors = Cors({
   methods: ['POST', 'GET', 'HEAD'],
@@ -87,7 +88,7 @@ function savaDataToTXT(data:Json, filename:string) {
   }
 }
 
-function savaDataToPDF(data, filename) {
+function savaDataToPDF(data:Json, filename:string) {
   try {
     // const doc = new PDFDocument();
     const doc = new jsPDF();
@@ -106,9 +107,7 @@ function savaDataToPDF(data, filename) {
     const y = 20; // Adjust the y-coordinate as needed
 
     doc.text("the result", x, y);
-    // Write the result header
 
-    // const headers = [['original source sentences', 'original translation', 'modified translation', 'reason of correction']];
     const keys = Object.keys(data[0]);
 
     const headers = [keys];
@@ -117,8 +116,8 @@ function savaDataToPDF(data, filename) {
     let intervalY = doc.internal.getFontSize() + 5;
     // Add each node data to the PDF
 
-    let rows = [];
-    data.forEach((node) => {
+    let rows: any[][] = [];
+    data.forEach((node:any) => {
       // headers.map((key) => {
       //   rows.push(node[key])
       // })
@@ -146,7 +145,7 @@ function savaDataToPDF(data, filename) {
   }
 }
 
-function saveDataToDocx(data: any, filename: string) {
+function saveDataToDocx(data: Json, filename: string) {
   try {
 
     const font = {
@@ -203,7 +202,7 @@ function saveDataToDocx(data: any, filename: string) {
       return error;
   }
 }
-function saveDataToHTML(data, filename) {
+function saveDataToHTML(data:Json, filename: string) {
   try {
     // Create the result header
     const header = "<h1>the result</h1>\n";
@@ -254,7 +253,7 @@ function saveDataToHTML(data, filename) {
     return error;
   }
 }
-function saveDataToJson (data, filename) {
+function saveDataToJson (data:Json, filename: string) {
   fs.writeFileSync(filename, JSON.stringify(data), error => {
     if (error) {
       console.error('Error writing JSON string to file', error);
@@ -262,21 +261,6 @@ function saveDataToJson (data, filename) {
       console.log('JSON string written to file');
     }
   });
-}
-const getAPIkeyLimit = async (apikey) => {
-  try {
-    const response = await axios.get('https://api.openai.com/v1/usage', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apikey}`
-      }
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching API key limit:', error);
-    return null;
-  }
 }
 export default async function handler(
   req: NextApiRequest,
