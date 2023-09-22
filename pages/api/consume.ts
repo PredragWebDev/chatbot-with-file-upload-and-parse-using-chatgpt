@@ -134,6 +134,7 @@ export default async function handler(
       res.status(200).json({ message: 'Data ingestion complete' });
     } catch (error: any) {
       console.log('error>>>>', error.message);
+      console.log('error>>>>', error);
   
       // Delete the PDF, DOCX, TXT, CSV files
       const filesToDelete = fs
