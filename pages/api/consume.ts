@@ -74,6 +74,7 @@ export default async function handler(
       openAIApiKey: openAIapiKey as string,
     });
 
+    console.log('okay???');
     // Get the Pinecone index with the given name
     const index = pinecone.Index(targetIndex);
 
@@ -131,7 +132,7 @@ export default async function handler(
       
   
       res.status(200).json({ message: 'Data ingestion complete' });
-    } catch (error) {
+    } catch (error: any) {
       console.log('error>>>>', error.message);
   
       // Delete the PDF, DOCX, TXT, CSV files

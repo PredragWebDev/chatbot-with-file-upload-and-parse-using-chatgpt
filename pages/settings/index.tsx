@@ -278,7 +278,7 @@ export default function Settings() {
         setIngestErrorMessage(errorData.error);
         setUploadMessage('');
         setUploadStatus(false);
-        setNamespaceName('');
+        setNamespaceName(''); 
       }
     } catch (error: any) {
       console.log(error);
