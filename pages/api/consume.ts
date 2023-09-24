@@ -105,11 +105,30 @@ export default async function handler(
   
           fs.writeFileSync(currentPath + '\\' + file, JSON.stringify(docs));
   
-          await PineconeStore.fromDocuments(docs, embeddings, {
-            pineconeIndex: index,
-            namespace: namespaceName as string,
-            textKey: 'text',
-          });
+          try {
+            await PineconeStore.fromDocuments(docs, embeddings, {
+              pineconeIndex: index,
+              namespace: namespaceName as string,
+              textKey: 'text',
+            });
+          }
+          catch (error) {
+
+            console.log('error>>>>>>>>>>>>>>>>>>>', error.message);
+            if (error) {
+              if (error.message === 'Request failed with status code 401') {
+
+                console.log('here?');
+                return res.status(500).json({ error: `${error.message}. Please check Openai Api key.` });
+              } else {
+                res.status(500).json({ error: error.message + ". Please check files again." });
+              }
+              
+            } else {
+              res.status(500).json({ error: "Failed ingestion. Please check files again." });
+            }
+          }
+          
 
           console.log('pinecone store okay?');
           
@@ -129,7 +148,6 @@ export default async function handler(
           fs.unlinkSync(`${filePath}/${file}`);
         });
       })
-      
   
       res.status(200).json({ message: 'Data ingestion complete' });
     } catch (error: any) {
