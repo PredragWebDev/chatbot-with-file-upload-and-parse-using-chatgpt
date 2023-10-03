@@ -426,7 +426,6 @@ export default function Home() {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    
                     <div className="absolute top-0 flex justify-center w-16 pt-5 left-full">
                       <button
                         type="button"
