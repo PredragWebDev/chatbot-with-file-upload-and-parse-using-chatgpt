@@ -405,7 +405,6 @@ export default function Home() {
               <div className="fixed inset-0 bg-gray-900/80" />
             </Transition.Child>
 
-
             <div className="fixed inset-0 flex">
               <Transition.Child
                 as={Fragment}
