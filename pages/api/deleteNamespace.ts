@@ -1,5 +1,4 @@
 import { initPinecone } from '@/utils/pinecone-client';
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import process from 'process';
 import fs from 'fs-extra';
