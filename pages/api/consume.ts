@@ -80,7 +80,6 @@ export default async function handler(
 
     // Store the document chunks in Pinecone with their embeddings
     
-    
     try {
   
       fs.readdir(filePath, async (error, uploadedFiles) => {
@@ -128,7 +127,6 @@ export default async function handler(
               res.status(500).json({ error: "Failed ingestion. Please check files again." });
             }
           }
-          
 
           console.log('pinecone store okay?');
           
