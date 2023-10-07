@@ -19,7 +19,6 @@ const getNamespaces = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(500).json({ message: "Invalid pinecone." });    
     return;
   }
-
   
   try {
     const index = pinecone.Index(targetIndex);
