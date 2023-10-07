@@ -20,6 +20,7 @@ const getNamespaces = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
+  
   try {
     const index = pinecone.Index(targetIndex);
 
