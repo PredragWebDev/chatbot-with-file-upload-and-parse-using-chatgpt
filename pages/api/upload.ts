@@ -38,7 +38,6 @@ const readDocxFile = async (filePath) => {
   }
 };
 
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -69,7 +68,6 @@ export default async function handler(
       console.log('filenames>>>>>>', filenames);
     /// combine uploaded files to one csv
     let data = {};
-    // for (const file of Object.values(files) as UploadedFile[][]) {
     for (const filename of filenames) {
       const file = Object.values(files).find(file => file[0].originalFilename === filename);
       if (!file || file.length === 0) {
@@ -141,8 +139,6 @@ export default async function handler(
             return tempResult;
         });
 
-        // console.log('colunm data>>>', columnData.flat());
-      
         data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = columnData.flat();
       
         index_of_file++;
@@ -167,8 +163,6 @@ export default async function handler(
             break;
         }
   
-        // console.log("filecontent", filecontent);
-
         data[`${uploadedFile.originalFilename.replace(ext, '.txt')}`] = filecontent.split('\n');
         index_of_file++;
       }
