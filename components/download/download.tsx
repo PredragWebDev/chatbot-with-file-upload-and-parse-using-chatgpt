@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 
-export const DownLoad_Modal = (props) => {
+export const DownLoad_Modal = (props: { pineconeIndexName: React.SetStateAction<string>; selectedNamespace: any; closeDonwloadModal: () => void; }) => {
     const [resultFiles, setResultFiles] = useState([]);
     
-    const [checkBox, setCheckBox] = useState([]);
+    const [checkBox, setCheckBox] = useState<any[]>([]);
     
     const [pineconeIndexName, setPineconeIndexName] = useState('');
     
     const [selectedValue, setSelectedValue] = useState('time');
-    const fetchData = async (sortBy) => {
+    const fetchData = async (sortBy: React.SetStateAction<string>) => {
         // const pineconeIndexName = props.pineconeIndexName;
         setPineconeIndexName(props.pineconeIndexName);
         
@@ -30,7 +30,7 @@ export const DownLoad_Modal = (props) => {
         }
     };
 
-    const handleSortIndex = (value) => {
+    const handleSortIndex = (value: React.SetStateAction<string>) => {
 
         console.log('value>>>', value);
         setSelectedValue(value);
@@ -56,15 +56,16 @@ export const DownLoad_Modal = (props) => {
 
     }, [resultFiles])
 
-    const handleCheckboxChange = (event) => {
+    const handleCheckboxChange = (event: { target: { id: number; checked: boolean; }; }) => {
         const {id, checked} = event.target;
 
-        setCheckBox(prevCheckboxes =>
-            prevCheckboxes.map(checkbox => checkbox.id === parseInt(id)
+        setCheckBox((prevCheckboxes)=>
+            prevCheckboxes.map((checkbox: {id:number} )=> checkbox.id === parseInt(id)
               ? { ...checkbox, isChecked: checked }
               : checkbox
             )
           );
+      
     }
     
     const handleDownload = () => {
