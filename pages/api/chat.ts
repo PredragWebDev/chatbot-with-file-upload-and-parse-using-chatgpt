@@ -394,6 +394,8 @@ export default async function handler(
       } else {
 
         for (const file of files) {
+
+          console.log('file name>>>>>', file);
   
           if (isResume === 'true') {
   

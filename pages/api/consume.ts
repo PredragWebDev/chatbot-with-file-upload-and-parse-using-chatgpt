@@ -107,10 +107,10 @@ export default async function handler(
   
           const docs = await textSplitter.splitDocuments(filecontent);
 
+          
+          fs.writeFileSync(currentPath + '/' + file, JSON.stringify(docs));
+          
           console.log('docs okay?');
-  
-          fs.writeFileSync(currentPath + '\\' + file, JSON.stringify(docs));
-  
           try {
             await PineconeStore.fromDocuments(docs, embeddings, {
               pineconeIndex: index,
