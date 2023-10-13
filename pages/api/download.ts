@@ -16,7 +16,7 @@ export default async function download(req: { method: string; body: { filename: 
   try {
 
     const {filename, pineconeIndexName, selectedNamespace} = req.body // replace with your file's path
-    const path = process.cwd() +'\\public\\result\\' + pineconeIndexName + '\\' + selectedNamespace + '\\';
+    const path = process.cwd() +'result/' + pineconeIndexName + '/' + selectedNamespace + '/';
 
     console.log('file name>>>>', filename);
     console.log('selected namespace>>>', selectedNamespace);
