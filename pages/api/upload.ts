@@ -227,6 +227,9 @@ export default async function handler(
 
       // In local development, move the file from the OS temp directory to the project 'tmp' directory
       const projectTmpDir = path.join(process.cwd(), 'tmp');
+
+      console.log("current path>>>>>", projectTmpDir);
+      
       fs.mkdirSync(projectTmpDir, { recursive: true });
 
       const filesToDelete = fs

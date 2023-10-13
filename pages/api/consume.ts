@@ -7,10 +7,11 @@ import fs from 'fs';
 import { initPinecone } from '@/utils/pinecone-client';
 import process from 'process';
 import { LocalStorage } from "node-localstorage";
+import path from 'path';
 global.localStorage = new LocalStorage('./docs');
 
 // const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
-const filePath =  '/tmp';
+const filePath =  path.join(process.cwd(), 'tmp');;
 
 
 export default async function handler(
@@ -38,15 +39,17 @@ export default async function handler(
   
     const { namespaceName, chunkSize, overlapSize } = req.query;
   
-    let currentPath = process.cwd();
-    console.log('current path>>>', currentPath);
-    currentPath += '\\namespace';
+    let currentPath:string = path.join(process.cwd(), 'namespace');
+    // console.log('current path>>>', currentPath);
+    // currentPath += '\\namespace';
   
     if (!fs.existsSync(currentPath)) {
   
       fs.mkdirSync(currentPath);
     }
-    currentPath += '\\' + namespaceName;
+    currentPath += '/' + namespaceName;
+
+    // currentPath = path.join(currentPath, namespaceName);
   
     if (fs.existsSync(currentPath)) {
       const filesToDelete = fs
@@ -94,7 +97,7 @@ export default async function handler(
   
         for (const file of uploadedFiles) {
           // Load PDF, DOCS, TXT, CSV files from the specified directory
-          const directoryLoader = new TextLoader(filePath + "\\" + file);
+          const directoryLoader = new TextLoader(filePath + "/" + file);
           const filecontent = await directoryLoader.load();
           console.log('filecontent>>>>', filecontent);
   
