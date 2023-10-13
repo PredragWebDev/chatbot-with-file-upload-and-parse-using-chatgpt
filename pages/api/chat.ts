@@ -409,9 +409,13 @@ export default async function handler(
           }
   
           if (resume) {
+
+            console.log("docs path>>>>", currentPath + "/" + file);
             
             const docs = fs.readFileSync(currentPath + '/' + file).toString();
             const myDocs = JSON.parse(docs);
+
+            console.log("docs content>>>>.", myDocs);
     
             let responseResult: any[] = saved_content;
     
