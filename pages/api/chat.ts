@@ -383,6 +383,8 @@ export default async function handler(
       }
       
     } 
+
+    console.log("current namespace path>>>>", currentPath);
     
     fs.readdir(currentPath, async (error, files) => {
       if (error) {
