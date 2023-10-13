@@ -6,8 +6,9 @@ import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import multiparty from 'multiparty';
 import { NextApiRequest, NextApiResponse } from 'next';
 import path, { resolve } from 'path';
-import fs from 'fs-extra';
+import fs from 'fs';
 import pdf from 'pdf-parse';
+import { File } from 'buffer';
 // import { result } from 'lodash';
 
 interface UploadedFile {
@@ -19,13 +20,17 @@ interface UploadedFile {
   size: number;
 }
 
+interface Data {
+  [key: string]: any;
+}
+
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-const readDocxFile = async (filePath) => {
+const readDocxFile = async (filePath:string) => {
 
   try {
     const directoryLoader = new DocxLoader(filePath);
@@ -62,14 +67,14 @@ export default async function handler(
     //------------------------------------------//
     const filenames = Object.values(files)
       .flat()
-      .map(file => file.originalFilename)
+      .map((file:any) => file.originalFilename)
       .sort((a, b) => a.localeCompare(b));
 
       console.log('filenames>>>>>>', filenames);
     /// combine uploaded files to one csv
-    let data = {};
+    let data:Data = {};
     for (const filename of filenames) {
-      const file = Object.values(files).find(file => file[0].originalFilename === filename);
+      const file:any = Object.values(files).find((file:any) => file[0].originalFilename === filename);
       if (!file || file.length === 0) {
         continue;
       }
@@ -82,14 +87,14 @@ export default async function handler(
 
       if (ext === '.csv') {
 
-        const fileData = fs.readFileSync(uploadedFile.path, 'utf8');
+        const fileData:any = fs.readFileSync(uploadedFile.path, 'utf8');
   
         const results = Papa.parse(fileData, {
-          hearder: true,
-          skipEmputyLines:true
-          })
+          header: true,
+          skipEmptyLines:true
+          });
   
-        const columnData = results.data.map((row: { [x: string]: any; }) => {
+        const columnData = results.data.map((row: any) => {
           let tempResult = [];
 
           console.log('length>>>', row.length);
@@ -121,9 +126,9 @@ export default async function handler(
         const jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, blankrows: true });
       
         // append the data as length
-        const columnName = Object.keys(jsonData[0])[0];
+        const columnName = Object.keys(jsonData[0] as object)[0];
       
-        const columnData = jsonData.map((row) => {
+        const columnData = jsonData.map((row:any) => {
           let tempResult = [];
 
           // console.log('length>>>', row.length);
@@ -155,7 +160,7 @@ export default async function handler(
             filecontent = await fs.promises.readFile(uploadedFile.path, 'utf-8');
             break;
           case '.docx':
-            const temp = await readDocxFile(uploadedFile.path);
+            const temp:any = await readDocxFile(uploadedFile.path);
             filecontent = temp[0]['pageContent'];
             break;
           default:
@@ -176,7 +181,7 @@ export default async function handler(
 
       console.log('keys>>>', keys);
       
-      let tempData = {};
+      let tempData:Data = {};
 
       if (keys.find(key => key.split(".").slice(0, -1).join(".") === 'original')) {
         keys.map((key) => {
@@ -198,13 +203,13 @@ export default async function handler(
     }
 
     const maxLen = Math.max(...Object.values(data).map(arr => arr.length));
-    let rows = Array(maxLen).fill().map(() => ({}));
+    let rows:any = Array(maxLen).fill(null).map(() => ({}));
 
     for (let key in data) {
 
       console.log('key>>>', key);
 
-      data[key].forEach((value, i) => {
+      data[key].forEach((value:any, i:any) => {
         rows[i][key] = value;
       });
     }
@@ -239,8 +244,8 @@ export default async function handler(
 
       //CSV or XLSX convertion txt
 
-      let header =[];
-      let context = [];
+      let header:string[] =[];
+      let context:{[key:string]:string} = {};
       const dataStream = fs.createReadStream('combined.csv')
       .pipe(csv());
 

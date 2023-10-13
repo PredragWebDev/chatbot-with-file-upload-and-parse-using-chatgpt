@@ -6,7 +6,7 @@ import process from 'process';
 import { URL } from 'url';
 import { saveAs } from 'file-saver';
 
-export default async function download(req, res) {
+export default async function download(req: { method: string; body: { filename: any; pineconeIndexName: any; selectedNamespace: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; send: { (arg0: string): void; new(): any; }; }; send: (arg0: string) => void; }) {
   // check req.method, you might want to only allow GET requests to this route
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');

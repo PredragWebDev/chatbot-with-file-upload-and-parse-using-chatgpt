@@ -65,9 +65,9 @@ function savaDataToTXT(data:Json, filename:string) {
   // fs.writeFileSync(filename, "the result \n");
   try {
     const keys = Object.keys(data[0]);
-    data.forEach(((node:Array<{[key:string]:unknown}>) => {
+    data.forEach(((node:any) => {
       console.log("keys>>>>>>>>",keys);
-      keys.map((key:number|string) => {
+      keys.map((key:string) => {
         result += node[key] + ','
       })
       result += '\n';
@@ -101,7 +101,9 @@ function savaDataToPDF(data:Json, filename:string) {
     console.log('pass encoding!');
 
     const pageWidth = doc.internal.pageSize.width;
-    const textWidth = doc.getStringUnitWidth("the result") * doc.internal.getFontSize();
+    // const textWidth = doc.getStringUnitWidth("the result") * doc.internal.getFontSize();
+    const textWidth = doc.getStringUnitWidth("the result");
+
     const x = (pageWidth - textWidth) / 2;
     const y = 20; // Adjust the y-coordinate as needed
 
@@ -112,7 +114,6 @@ function savaDataToPDF(data:Json, filename:string) {
     const headers = [keys];
 
     let index = 0;
-    let intervalY = doc.internal.getFontSize() + 5;
     // Add each node data to the PDF
 
     let rows: any[][] = [];
@@ -127,13 +128,13 @@ function savaDataToPDF(data:Json, filename:string) {
     
     });
 
-    doc.autoTable({
-      styles: {
-        font:'customFont'
-      },
-      head:headers,
-      body:rows
-    })
+    // doc.autoTable({
+    //   styles: {
+    //     font:'customFont'
+    //   },
+    //   head:headers,
+    //   body:rows
+    // })
 
     doc.save(filename)
 
@@ -181,8 +182,8 @@ function saveDataToDocx(data: Json, filename: string) {
                   )),
                 }),
                 // Table data rows
-                ...data.map(row => new TableRow({
-                  children: Object.values(row).map(value => new TableCell({children:[new Paragraph({text: value, font: font})]})),
+                ...data.map((row:any) => new TableRow({
+                  children: Object.values(row).map((value) => new TableCell({children:[new Paragraph({text: value as string})]})),
                 })),
               ],
             }),
@@ -218,7 +219,7 @@ function saveDataToHTML(data:Json, filename: string) {
   
     // Create the rows for the table
     let rows = '';
-    data.forEach((node) => {
+    data.forEach((node:any) => {
       rows += "<tr>"
       keys.map((key) => {
         rows += `<td>${node[key]}</td>`;
@@ -253,13 +254,12 @@ function saveDataToHTML(data:Json, filename: string) {
   }
 }
 function saveDataToJson (data:Json, filename: string) {
-  fs.writeFileSync(filename, JSON.stringify(data), error => {
-    if (error) {
-      console.error('Error writing JSON string to file', error);
-    } else {
-      console.log('JSON string written to file');
-    }
-  });
+  try {
+    fs.writeFileSync(filename, JSON.stringify(data));
+    console.log('Data saved to file:', filename);
+  } catch (error) {
+    console.error('Error writing JSON string to file', error);
+  }
 }
 export default async function handler(
   req: NextApiRequest,
@@ -328,7 +328,7 @@ export default async function handler(
       `
     );
 
-    let result ="";
+    let result:string ="";
     let response_Source_doc = "";
 
     const index = pinecone.Index(targetIndex as string);
@@ -411,7 +411,7 @@ export default async function handler(
             const docs = fs.readFileSync(currentPath + '\\' + file).toString();
             const myDocs = JSON.parse(docs);
     
-            let responseResult: never[] = saved_content;
+            let responseResult: any[] = saved_content;
     
             const chain = new LLMChain({llm:model, prompt:prompt});
     
@@ -442,7 +442,7 @@ export default async function handler(
               }
               catch (error:unknown) {
   
-                if (error.message === 'Request failed with status code 429') {
+                if ((error as { message?: string }).message === 'Request failed with status code 429') {
   
                   let contentOfResume = [
                     {
@@ -457,11 +457,11 @@ export default async function handler(
                   break;
                 }
   
-                if (error.message === 'Request failed with status code 401') {
+                if ((error as { message?: string }).message === 'Request failed with status code 401') {
                   isExpired = true;
                 }
   
-                if (error.name === "AbortError") {
+                if ((error as { name?: string }).name === "AbortError") {
                   isAbort = true;
                   break;
                 }
@@ -487,34 +487,34 @@ export default async function handler(
               switch (filetype) {
                 case 'xlsx':
                   console.log("save as xlsx");
-                  result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                  result = String(saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx')));
                   break;
                 case 'pdf':
                   console.log("save as pdf");
       
-                  result = savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf'));
+                  result = String(savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf')));
                   break;
                 case 'docx':
                   console.log("save as docx");
       
-                  result = saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx'));
+                  result = String(saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx')));
                   break;
                 case 'txt':
                   console.log("save as txt");
       
-                  result = savaDataToTXT(responseResult, resultPath + '\\' + file);
+                  result = String(savaDataToTXT(responseResult, resultPath + '\\' + file));
                   break;
                 case 'html':
   
-                  result = saveDataToHTML(responseResult, resultPath +'\\' + file);
+                  result = String(saveDataToHTML(responseResult, resultPath +'\\' + file));
                   break;
   
                 case 'json':
                   console.log('save as json');
-                  result = saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json'));
+                  result = String(saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json')));
                   break;
                 default:
-                  result = saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx'));
+                  result = String(saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx')));
                   break;
               }
             } else {

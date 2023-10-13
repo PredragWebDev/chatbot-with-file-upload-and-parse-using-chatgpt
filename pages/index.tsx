@@ -184,9 +184,6 @@ export default function Home() {
 
   }, []);
 
-  function handleAbort() {
-    controller.abort();
-  }
   async function handleSubmit(e: any) {
     e.preventDefault();
     setError(null);
@@ -503,7 +500,7 @@ export default function Home() {
                     messages={messages.map(mapConversationMessageToMessage)}
                     loading={loading}
                     messageListRef={messageListRef}
-                    handleAbort = {handleAbort}
+                    // handleAbort = {handleAbort}
                   />
                 </div>
               </div>

@@ -56,7 +56,7 @@ export const DownLoad_Modal = (props: { pineconeIndexName: React.SetStateAction<
 
     }, [resultFiles])
 
-    const handleCheckboxChange = (event: { target: { id: number; checked: boolean; }; }) => {
+    const handleCheckboxChange = (event:any) => {
         const {id, checked} = event.target;
 
         setCheckBox((prevCheckboxes)=>

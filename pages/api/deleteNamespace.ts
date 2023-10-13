@@ -1,7 +1,7 @@
 import { initPinecone } from '@/utils/pinecone-client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import process from 'process';
-import fs from 'fs-extra';
+import fs from 'fs';
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,7 +15,8 @@ export default async function handler(
   const currentPath = process.cwd() + '\\namespace\\' + namespace;
 
   if (fs.existsSync(currentPath)) {
-    await fs.remove(currentPath);
+    // await fs.remove(currentPath);
+    await fs.promises.unlink(currentPath);
   }
 
   const pineconeApiKey = req.headers['x-api-key'];

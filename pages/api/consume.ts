@@ -3,7 +3,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs-extra';
+import fs from 'fs';
 import { initPinecone } from '@/utils/pinecone-client';
 import process from 'process';
 import { LocalStorage } from "node-localstorage";
@@ -111,16 +111,15 @@ export default async function handler(
               textKey: 'text',
             });
           }
-          catch (error) {
+          catch (error:unknown) {
 
-            console.log('error>>>>>>>>>>>>>>>>>>>', error.message);
             if (error) {
-              if (error.message === 'Request failed with status code 401') {
+              if ((error as { message?: string }).message === 'Request failed with status code 401') {
 
                 console.log('here?');
-                return res.status(500).json({ error: `${error.message}. Please check Openai Api key.` });
+                return res.status(500).json({ error: `${(error as { message?: string }).message}. Please check Openai Api key.` });
               } else {
-                res.status(500).json({ error: error.message + ". Please check files again." });
+                res.status(500).json({ error: (error as { message?: string }).message + ". Please check files again." });
               }
               
             } else {
@@ -178,6 +177,6 @@ export default async function handler(
       }
     }
   } catch (error) {
-    res.status(500).json({ error: error.message + ". Please check pinecone." });
+    res.status(500).json({ error: (error as { message?: string }).message + ". Please check pinecone." });
   }
 }
