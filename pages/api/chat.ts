@@ -488,7 +488,7 @@ export default async function handler(
 
               fs.mkdirSync(resultPath_temp2, {recursive:true});
 
-              const resultPath = resultPath_temp + '/' + selectedNamespace;
+              const resultPath = resultPath_temp2 + '/' + selectedNamespace;
 
               fs.mkdirSync(resultPath, {recursive:true});
 
