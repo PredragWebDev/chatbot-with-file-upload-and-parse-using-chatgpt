@@ -9,7 +9,9 @@ import process from 'process';
 import { LocalStorage } from "node-localstorage";
 global.localStorage = new LocalStorage('./docs');
 
-const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
+// const filePath = process.env.NODE_ENV === 'production' ? '/tmp' : 'tmp';
+const filePath =  '/tmp';
+
 
 export default async function handler(
   req: NextApiRequest,

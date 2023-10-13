@@ -70,7 +70,7 @@ export default async function handler(
       .map((file:any) => file.originalFilename)
       .sort((a, b) => a.localeCompare(b));
 
-      console.log('filenames>>>>>>', filenames);
+    console.log('filenames>>>>>>', filenames);
     /// combine uploaded files to one csv
     let data:Data = {};
     for (const filename of filenames) {
