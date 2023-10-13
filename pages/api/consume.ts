@@ -49,6 +49,8 @@ export default async function handler(
     }
     currentPath += '/' + namespaceName;
 
+    console.log("cur path>>>>", currentPath);
+
     // currentPath = path.join(currentPath, namespaceName);
   
     if (fs.existsSync(currentPath)) {

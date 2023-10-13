@@ -92,7 +92,7 @@ function savaDataToPDF(data:Json, filename:string) {
     // const doc = new PDFDocument();
     const doc = new jsPDF();
     
-    const fontFilePath = process.cwd() + '\\font\\';
+    const fontFilePath = process.cwd() + '/font/';
 
     doc.addFont(fontFilePath + 'OpenSans-Regular.ttf', 'customFont', 'normal');
 
@@ -344,7 +344,7 @@ export default async function handler(
       },
     );
 
-    let currentPath = process.cwd() + '\\namespace\\' + selectedNamespace;
+    let currentPath = process.cwd() + '/namespace/' + selectedNamespace;
 
     let progress_count = 0;
 
@@ -361,9 +361,9 @@ export default async function handler(
     const signal = controller.signal;
 
     if (isResume === 'true') {
-      if (fs.existsSync(currentPath + '\\resume.txt')) {
+      if (fs.existsSync(currentPath + '/resume.txt')) {
         
-        const content_of_resume = fs.readFileSync(currentPath+ '\\resume.txt').toString();
+        const content_of_resume = fs.readFileSync(currentPath+ '/resume.txt').toString();
         const jsonData_of_content = JSON.parse(content_of_resume);
         saved_file_name = jsonData_of_content[0]['savedFile'];
         saved_index = jsonData_of_content[0]['index'];
@@ -371,7 +371,7 @@ export default async function handler(
         
         console.log('saved index>>>', saved_index);
 
-        fs.unlink(currentPath + '\\resume.txt', (err) => {
+        fs.unlink(currentPath + '/resume.txt', (err) => {
           if (err) {
             console.log(err);
           }
@@ -395,7 +395,7 @@ export default async function handler(
   
           if (isResume === 'true') {
   
-            if (currentPath + '\\' + file === saved_file_name) {
+            if (currentPath + '/' + file === saved_file_name) {
               resume = true;
               isResume === 'false';
             }
@@ -408,7 +408,7 @@ export default async function handler(
   
           if (resume) {
             
-            const docs = fs.readFileSync(currentPath + '\\' + file).toString();
+            const docs = fs.readFileSync(currentPath + '/' + file).toString();
             const myDocs = JSON.parse(docs);
     
             let responseResult: any[] = saved_content;
@@ -446,13 +446,13 @@ export default async function handler(
   
                   let contentOfResume = [
                     {
-                      savedFile:currentPath + '\\' + file,
+                      savedFile:currentPath + '/' + file,
                       index:i,
                       content:responseResult
                     }
                   ]
       
-                  fs.writeFileSync(currentPath + '\\resume.txt', JSON.stringify(contentOfResume));
+                  fs.writeFileSync(currentPath + '/resume.txt', JSON.stringify(contentOfResume));
                   isBreak = true;
                   break;
                 }
@@ -472,11 +472,11 @@ export default async function handler(
     
             if (true) {
   
-              const resultPath_temp = process.cwd() + `\\public\\result\\${pineconeApiKey}`;
+              const resultPath_temp = process.cwd() + `/public/result/${pineconeApiKey}`;
 
               fs.mkdirSync(resultPath_temp, {recursive:true});
 
-              const resultPath = resultPath_temp + '\\' + selectedNamespace;
+              const resultPath = resultPath_temp + '/' + selectedNamespace;
 
               fs.mkdirSync(resultPath, {recursive:true});
       
@@ -487,34 +487,34 @@ export default async function handler(
               switch (filetype) {
                 case 'xlsx':
                   console.log("save as xlsx");
-                  result = String(saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx')));
+                  result = String(saveDataToXlsx(responseResult, resultPath + '/' + file.replace('.txt', '.xlsx')));
                   break;
                 case 'pdf':
                   console.log("save as pdf");
       
-                  result = String(savaDataToPDF(responseResult, resultPath + '\\' + file.replace('.txt', '.pdf')));
+                  result = String(savaDataToPDF(responseResult, resultPath + '/' + file.replace('.txt', '.pdf')));
                   break;
                 case 'docx':
                   console.log("save as docx");
       
-                  result = String(saveDataToDocx(responseResult, resultPath + '\\' + file.replace('.txt', '.docx')));
+                  result = String(saveDataToDocx(responseResult, resultPath + '/' + file.replace('.txt', '.docx')));
                   break;
                 case 'txt':
                   console.log("save as txt");
       
-                  result = String(savaDataToTXT(responseResult, resultPath + '\\' + file));
+                  result = String(savaDataToTXT(responseResult, resultPath + '/' + file));
                   break;
                 case 'html':
   
-                  result = String(saveDataToHTML(responseResult, resultPath +'\\' + file));
+                  result = String(saveDataToHTML(responseResult, resultPath +'/' + file));
                   break;
   
                 case 'json':
                   console.log('save as json');
-                  result = String(saveDataToJson(responseResult, resultPath + '\\' + file.replace('.txt', '.json')));
+                  result = String(saveDataToJson(responseResult, resultPath + '/' + file.replace('.txt', '.json')));
                   break;
                 default:
-                  result = String(saveDataToXlsx(responseResult, resultPath + '\\' + file.replace('.txt', '.xlsx')));
+                  result = String(saveDataToXlsx(responseResult, resultPath + '/' + file.replace('.txt', '.xlsx')));
                   break;
               }
             } else {
