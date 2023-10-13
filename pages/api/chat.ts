@@ -485,6 +485,8 @@ export default async function handler(
               const resultPath = resultPath_temp + '/' + selectedNamespace;
 
               fs.mkdirSync(resultPath, {recursive:true});
+
+              console.log("result path>>>>>", resultPath);
       
               // if (!fs.existsSync(resultPath)) {
               //   fs.mkdirSync(resultPath);
